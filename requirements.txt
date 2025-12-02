@@ -5,3 +5,4 @@ ipykernel
 openai
 ipdb
 re
+tqdm
