@@ -74,9 +74,10 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
-
+ 
 # Jupyter Notebook
 .ipynb_checkpoints
+notebooks/
 
 # IPython
 profile_default/
@@ -136,6 +137,7 @@ celerybeat.pid
 *.aof
 *.pid
 data/
+raw_data/
 # RabbitMQ
 mnesia/
 rabbitmq/
