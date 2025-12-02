@@ -22,7 +22,7 @@ def clean_categories(dataframe):
     
     dupes_df.reset_index(drop=True, inplace=True)
        
-    return dupes_df
+    return dupes_df[["product_id","propiedad"]]
 
 
 def encode_properties(dataframe):
