@@ -3,3 +3,7 @@ numpy
 scikit-learn
 ipykernel
 unidecode
+openai
+ipdb
+re
+tqdm
