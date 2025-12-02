@@ -1,16 +1,23 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from unidecode import unidecode
 
-df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data.csv")
-
-dupes_df = df.dropna(subset=["propiedad"])
-
-def encode_target(dataframe):
+def clean_categories(dataframe):
     
-    target = dataframe["propiedad"]
+    dupes_df = dataframe.dropna(subset=["propiedad"])
     
-    label_encoder = LabelEncoder()
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: x.split(","))
     
-    label_encoder.fit(target)
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: [v.strip() for v in x])
+        
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: [v.lower() for v in x])
     
-    encoded_target = label_encoder.transform(target)
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: list(set(x)))
+    
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: list(filter(lambda y: y.strip(), x)))
+    
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: [unidecode(v) for v in x])
+    
+    dupes_df["propiedad"] = dupes_df["propiedad"].map(lambda x: [v.replace("-"," ")for v in x])
+        
+    return dupes_df
