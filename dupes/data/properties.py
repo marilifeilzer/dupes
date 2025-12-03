@@ -35,3 +35,28 @@ def encode_properties(dataframe, col):
                  )
 
     return pd.concat([dataframe.drop(columns=[col]),mlb_df], axis=1)
+
+def price_and_vol_clean(data):
+    price_str = data["price"].astype(str)
+    price_first_number = price_str.str.extract(r'(\d+[.,]\d+)')[0]
+
+    data["price_eur"] = (
+        price_first_number
+        .str.replace(".", "", regex=False)  #remove thousands separator
+        .str.replace(",", ".", regex=False)  #convert decimal comma to dot
+        .pipe(pd.to_numeric, errors="coerce")
+    )
+
+    #Volume: keep only numeric ml value
+    volume_str = data["volume"].astype(str)
+    volume_number = volume_str.str.extract(r'(?i)([\d\.,]+)\s*ml')[0]
+
+    data["volume_ml"] = (
+        volume_number
+        .str.replace(".", "", regex=False)
+        .str.replace(",", ".", regex=False)
+        .pipe(pd.to_numeric, errors="coerce")
+    )
+
+    #Drop original columns
+    data = data.drop(columns=["price", "volume"])
