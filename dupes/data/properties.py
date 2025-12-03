@@ -35,3 +35,5 @@ def encode_properties(dataframe, col):
                  )
 
     return pd.concat([dataframe.drop(columns=[col]),mlb_df], axis=1)
+
+
