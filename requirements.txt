@@ -5,6 +5,6 @@ ipykernel
 unidecode
 openai
 ipdb
-re
 tqdm
-
+fastapi
+uvicorn
