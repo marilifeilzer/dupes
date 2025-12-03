@@ -24,7 +24,6 @@ def chromadb_model_testing(embedding, test_ingredient_embedding, cols=['product_
     embeddings=embeds
     )
 
-    breakpoint()
     results= collection.query(
     query_embeddings=[embeds[0]],
     n_results=5,
