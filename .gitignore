@@ -5,13 +5,14 @@ __pycache__/
 *.ipynb
 # C extensions
 *.so
-
+gcp/
 # Distribution / packaging
 .Python
 build/
 develop-eggs/
 dist/
 downloads/
+source_data/
 eggs/
 .eggs/
 lib/
@@ -19,6 +20,8 @@ lib64/
 parts/
 sdist/
 var/
+data/
+notebook/
 wheels/
 share/python-wheels/
 *.egg-info/
