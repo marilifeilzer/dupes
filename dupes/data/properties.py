@@ -34,6 +34,4 @@ def encode_properties(dataframe, col):
                  index=dataframe.index
                  )
 
-    return pd.concat([dataframe.drop(columns=[col]),mlb_df], axis=1)
-
-
+    return pd.concat([dataframe.drop(columns=[col]), mlb_df], axis=1)
