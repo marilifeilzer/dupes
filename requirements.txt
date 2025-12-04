@@ -9,4 +9,4 @@ tqdm
 fastapi
 uvicorn
 chromadb
-
+sentence-transformers
