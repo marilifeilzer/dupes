@@ -140,5 +140,7 @@ def encode_hair_type(data):
     dummies = dummies[HAIR_TYPES]
     df = pd.concat([df, dummies], axis=1)
     df = df.drop(columns=["tipo_list", "tipo_de_cabello"])
-    
+
     return df
+
+# Hannes is back
