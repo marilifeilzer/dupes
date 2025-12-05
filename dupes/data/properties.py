@@ -29,12 +29,13 @@ def encode_properties(dataframe, col):
 
     mlb = MultiLabelBinarizer()
 
+    dataframe[col] = dataframe[col].apply(lambda x: [each for each in x if type(each) == str])
+
     mlb_df = pd.DataFrame(mlb.fit_transform(dataframe[col]),
                  columns=mlb.classes_,
                  index=dataframe.index
                  )
-
-    return pd.concat([dataframe.drop(columns=[col]),mlb_df], axis=1)
+    return pd.concat([dataframe[["product_id"]],mlb_df], axis=1)
 
 def price_and_vol_clean(data):
     price_str = data["price"].astype(str)
