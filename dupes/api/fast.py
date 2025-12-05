@@ -5,8 +5,6 @@ from dupes.model.descriptions_chromadb import embedding_description_get_recommen
 
 app = FastAPI()
 
-df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
-
 @app.get("/")
 def index():
     return {"working": True}
@@ -14,8 +12,6 @@ def index():
 @app.get("/recomend")
 def get_recomendation(shampoo: str, description: str):
 
-
     recomendation = embedding_description_get_recommendation(description)
-
 
     return recomendation
