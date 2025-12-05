@@ -29,12 +29,17 @@ def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
     )
     return collection
 
-def embedding_description_query_chromadb(collection, query, n_results):
+def embedding_description_query_chromadb(query, n_results=5):
+    collection = chroma_client.get_collection(name="description_embed")
     query_embedding = model.encode(query, show_progress_bar=False)
     results = collection.query(
         query_embeddings=[query_embedding],
         n_results=n_results)
-    return results
+
+    results = results["ids"][0]
+    product_names = [df_cleaned.loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in results]
+
+    return product_names
 
 # Main functionality
 def embedding_description_get_recommendation(query, n_results = 5):
