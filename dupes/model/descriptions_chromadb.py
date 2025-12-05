@@ -1,9 +1,11 @@
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 import chromadb
+from dupes.data.clean_data import clean_data
 
 # Load raw data
-df = pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_data.csv')
+df = pd.read_csv('/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv')
+df_cleaned = clean_data(df)
 
 # Common instances
 model = SentenceTransformer("all-mpnet-base-v2")
@@ -35,8 +37,15 @@ def embedding_description_query_chromadb(collection, query, n_results):
 
 # Main functionality
 def embedding_description_get_recommendation(query, n_results = 5):
-    dropped_desc = embedding_description_get_data(df)
+    #collection = chroma_client.get_or_create_collection(name="description_embed")
+    dropped_desc = embedding_description_get_data(df_cleaned)
     embeddings_desc = embedding_description_embed(dropped_desc)
     collection_desc = embedding_description_populate_chromadb(dropped_desc, embeddings_desc)
     recommendations_desc = embedding_description_query_chromadb(collection_desc, query, n_results)
-    return recommendations_desc
+    results = recommendations_desc["ids"][0]
+
+    # TODO clean the df before using
+    #df.fillna("Empty", inplace=True)
+    product_names = [df_cleaned.loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in results]
+
+    return product_names
