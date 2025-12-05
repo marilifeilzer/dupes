@@ -23,8 +23,7 @@ def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
     collection = chroma_client.get_or_create_collection(name="description_embed")
     collection.add(
         ids=list(dropped['product_id'].values),
-        embeddings=embeddings
-    )
+        embeddings=embeddings)
     return collection
 
 def embedding_description_query_chromadb(collection, query, n_results):
