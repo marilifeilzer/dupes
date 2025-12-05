@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import pandas as pd
 from dupes.logic import predict_shampoo
-from dupes.model.descriptions_chromadb import embedding_description_get_recommendation
+from dupes.model.descriptions_chromadb import embedding_description_query_chromadb
 
 app = FastAPI()
 
@@ -12,10 +12,10 @@ def index():
     return {"working": True}
 
 @app.get("/recomend")
-def get_recomendation(shampoo: str, description: str):
+def get_recomendation(description: str):
 
 
-    recomendation = embedding_description_get_recommendation(description)
+    recomendation = embedding_description_query_chromadb(description)
 
 
     return recomendation
