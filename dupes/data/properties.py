@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
-from clean import retrieve_formula_ingredients
 
 def clean_categories(dataframe):
 
@@ -145,5 +144,3 @@ def encode_hair_type(data):
     df = df.drop(columns=["tipo_list", "tipo_de_cabello"])
 
     return df
-
-

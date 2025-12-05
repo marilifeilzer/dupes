@@ -28,7 +28,6 @@ def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "colo
 
 
 def embedding_ingredients_populate_chromadb(dropped: pd.DataFrame, embeddings, properties_metadata):
-    breakpoint()
     collection = chroma_client.get_or_create_collection(name="ingredients_embed")
     collection.add(
         ids=list(dropped['product_id'].values),
@@ -57,12 +56,22 @@ def embedding_description_get_recommendation(df, query, where, n_results = 5):
     results= embedding_description_query_filtering_chromadb(collection, query,  n_results, where)
     return results
 
-if __name__ == "__main__":
-    df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_600_v3.csv")
+def create_ingr_db() -> None:
+    df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_600_ingredients.csv")
     dropped= embedding_ingredients_get_data(df)
-    breakpoint()
     embed_ingredients = embedding_ingredients(dropped)
     metadata_dict= create_metadata_dictionairy(dropped)
-    collection= embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
+    embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
 
-    print(collection)
+if __name__ == "__main__":
+    df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_600_ingredients.csv")
+    product_example = df.iloc[50]
+
+    
+
+    # create_metadata_dictionairy - make dict out of its featurs
+
+    # make embedding for the single row
+
+
+    #embedding_description_query_filtering_chromadb pass dict with feats and embeddgin
