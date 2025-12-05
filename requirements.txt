@@ -10,3 +10,5 @@ fastapi
 uvicorn
 chromadb
 sentence-transformers
+streamlit
+
