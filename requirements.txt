@@ -11,4 +11,4 @@ uvicorn
 chromadb
 sentence-transformers
 streamlit
-
+xgboost
