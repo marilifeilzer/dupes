@@ -11,4 +11,5 @@ uvicorn
 chromadb
 sentence-transformers
 streamlit
+sentence_transformers
 
