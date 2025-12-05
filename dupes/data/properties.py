@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
+from clean import retrieve_formula_ingredients
 
 def clean_categories(dataframe):
 
@@ -38,6 +39,7 @@ def encode_properties(dataframe, col):
     return pd.concat([dataframe[["product_id"]],mlb_df], axis=1)
 
 def price_and_vol_clean(data):
+
     price_str = data["price"].astype(str)
     price_first_number = price_str.str.extract(r'(\d+[.,]\d+)')[0]
 
@@ -63,7 +65,7 @@ def price_and_vol_clean(data):
     data = data.drop(columns=["price", "volume"])
     return data
 
-def encode_hair_colors(data):
+def encode_hair_colors(df):
     #Fixed set of categories for hair color
     HAIR_COLORS = [
         "Todos los colores de cabello",
@@ -144,4 +146,4 @@ def encode_hair_type(data):
 
     return df
 
-# Hannes is back
+
