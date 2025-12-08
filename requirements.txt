@@ -11,4 +11,7 @@ uvicorn
 chromadb
 sentence-transformers
 streamlit
-
+requests
+sentence_transformers
+pickle
+streamlit_card

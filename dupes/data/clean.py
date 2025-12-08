@@ -2,6 +2,10 @@ import pandas as pd
 import re
 import numpy as np
 
+
+
+
+
 def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="ingredients_text"):
     # df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data_V2.csv')
     # df_keys.head()
@@ -22,12 +26,27 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
         lambda lst: [i.strip().lower() for i in lst if i.strip() != ""]
     )
 
-    df["ingredients_formula"] = df["ingredients_raw"].apply(
-        lambda lst: [dict_key_formula.get(i) for i in lst]
-    )
 
-    df.ingredients_formula = df.ingredients_formula.apply(set)
-    df.ingredients_formula = df.ingredients_formula.apply(list)
+    def get_unique_values(row):
+        clean_list = []
+
+        for item in row:
+            formula = dict_key_formula.get(item)
+            if formula not in clean_list:
+                clean_list.append(formula)
+
+        return clean_list
+
+
+    #df["ingredients_formula"] = df["ingredients_raw"].apply(
+    #    lambda lst: [dict_key_formula.get(i) for i in lst ]
+    #)
+
+
+    df.ingredients_formula = df.ingredients_raw.apply(get_unique_values)
+
+    #df.ingredients_formula = df.ingredients_formula.apply(list)
+
     df.ingredients_formula = df.ingredients_formula.apply(
         lambda x: [item for item in x if item not in ['not an element', 'not a chemical']]
     )
@@ -45,10 +64,13 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
 
 
 if __name__ == "__main__":
-    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_raw_600.csv')
+    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data_clean_properties.csv')
     df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_dict.csv')
+
     result = retrieve_formula_ingredients(df_keys=df_keys, df=df, col="ingredients_text")
-    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_600_v5.csv"
+    result["formula"] = result.ingredients_formula
+
+    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv"
     result.to_csv(output_path, index=False)
 
     print(result)
