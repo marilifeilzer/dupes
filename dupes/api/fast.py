@@ -8,6 +8,7 @@ app = FastAPI()
 
 embedding_description_get_recommendation()
 
+df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
 
 @app.get("/")
 def index():
