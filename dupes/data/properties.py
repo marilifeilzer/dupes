@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
+import pickle
 
 def clean_categories(dataframe):
 
@@ -29,14 +30,32 @@ def encode_properties(dataframe, col):
 
     mlb = MultiLabelBinarizer()
 
+    dataframe[col] = dataframe[col].apply(lambda x: [each for each in x if type(each) == str])
+
     mlb_df = pd.DataFrame(mlb.fit_transform(dataframe[col]),
                  columns=mlb.classes_,
                  index=dataframe.index
                  )
 
-    return pd.concat([dataframe.drop(columns=[col]),mlb_df], axis=1)
+    # save
+    with open('model.pkl','wb') as f:
+        pickle.dump(mlb,f)
+
+    return pd.concat([dataframe[["product_id"]],mlb_df], axis=1)
+
+def use_encoder_load(dataframe, col):
+
+    with open('model.pkl', 'rb') as f:
+        mlb = pickle.load(f)
+
+    mlb_df = pd.DataFrame(mlb.transform(dataframe[col]), #changed fit and transform to transform, error gone
+                 columns=mlb.classes_,
+                 index=dataframe.index
+                 )
+    return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
 
 def price_and_vol_clean(data):
+
     price_str = data["price"].astype(str)
     price_first_number = price_str.str.extract(r'(\d+[.,]\d+)')[0]
 
@@ -62,7 +81,7 @@ def price_and_vol_clean(data):
     data = data.drop(columns=["price", "volume"])
     return data
 
-def encode_hair_colors(data):
+def encode_hair_colors(df):
     #Fixed set of categories for hair color
     HAIR_COLORS = [
         "Todos los colores de cabello",
@@ -142,5 +161,3 @@ def encode_hair_type(data):
     df = df.drop(columns=["tipo_list", "tipo_de_cabello"])
 
     return df
-
-# Hannes is back
