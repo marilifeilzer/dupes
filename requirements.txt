@@ -12,3 +12,7 @@ chromadb
 sentence-transformers
 streamlit
 xgboost
+matplotlib
+optuna
+pickle
+json

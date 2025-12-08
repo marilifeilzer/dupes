@@ -4,7 +4,6 @@ from dupes.logic import predict_shampoo
 from dupes.model.descriptions_chromadb import embedding_description_get_recommendation
 
 app = FastAPI()
-
 df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
 
 @app.get("/")
