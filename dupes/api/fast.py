@@ -5,7 +5,7 @@ from dupes.model.descriptions_chromadb import embedding_description_query_chroma
 
 app = FastAPI()
 
-#embedding_description_get_recommendation()
+embedding_description_get_recommendation()
 
 
 @app.get("/")
