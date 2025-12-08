@@ -64,13 +64,10 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
 
 
 if __name__ == "__main__":
-    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data_clean_properties.csv')
-    df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_dict.csv')
-
+    df = pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/data_0812.csv')
+    df_keys= pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_dict.csv')
     result = retrieve_formula_ingredients(df_keys=df_keys, df=df, col="ingredients_text")
-    result["formula"] = result.ingredients_formula
-
-    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv"
+    output_path = "/Users/panamas/code/marili/dupes/raw_data/products_0812.csv"
     result.to_csv(output_path, index=False)
 
     print(result)
