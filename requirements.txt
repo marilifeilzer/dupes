@@ -12,3 +12,4 @@ chromadb
 sentence-transformers
 streamlit
 streamlit_card
+transformers
