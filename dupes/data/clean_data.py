@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 import unicodedata
-from config import MANUFACTURER_MAP, ORDERED_COLS, PRODUCT_NAME_PATTERNS
+from dupes.data.config import MANUFACTURER_MAP, ORDERED_COLS, PRODUCT_NAME_PATTERNS
 
 
 def load_raw_data(file_path: str) -> pd.DataFrame:
