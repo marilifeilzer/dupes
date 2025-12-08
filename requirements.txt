@@ -11,15 +11,13 @@ uvicorn
 chromadb
 sentence-transformers
 streamlit
-<<<<<<< HEAD
 requests
 sentence_transformers
 pickle
 streamlit_card
-=======
 xgboost
 matplotlib
 optuna
 pickle
 json
->>>>>>> price_prediction
+google-cloud-bigquery
