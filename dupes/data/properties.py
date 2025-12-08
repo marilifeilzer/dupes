@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
+import pickle
 
 def clean_categories(dataframe):
 
@@ -35,7 +36,23 @@ def encode_properties(dataframe, col):
                  columns=mlb.classes_,
                  index=dataframe.index
                  )
+
+    # save
+    with open('model.pkl','wb') as f:
+        pickle.dump(mlb,f)
+
     return pd.concat([dataframe[["product_id"]],mlb_df], axis=1)
+
+def use_encoder_load(dataframe, col):
+
+    with open('model.pkl', 'rb') as f:
+        mlb = pickle.load(f)
+
+    mlb_df = pd.DataFrame(mlb.transform(dataframe[col]), #changed fit and transform to transform, error gone
+                 columns=mlb.classes_,
+                 index=dataframe.index
+                 )
+    return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
 
 def price_and_vol_clean(data):
 
