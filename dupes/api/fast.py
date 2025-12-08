@@ -19,6 +19,3 @@ def get_recomendation(shampoo: str, description: str):
 
 
     return {"recomendation": recomendation}
-
-@app.get("/recommend_ingredients")
-def get_ingredient_recommendation()
