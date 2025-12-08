@@ -37,13 +37,21 @@ if nlp_text:
 
         card(
             title=f"{list(prediction["product_name"].values())[0]}",
-            text=[f"{list(prediction["description"].values())[0]}",f"{list(prediction["price_eur"].values())[0]}"],
+            text=[f"{list(prediction["description"].values())[0]}",\
+                f"Price: €{list(prediction["price_eur"].values())[0]}",\
+                    f"Predicted price: €"],
             styles={
                 "card": {
                     "width": "500px",
                     "height": "500px",
                     "border-radius": "60px",
                     "box-shadow": "0 0 10px rgba(0,0,0,0.5)"
+                },
+                "text" : {
+                    "color": "black"
+                },
+                "filter": {
+                    "background-color": "white"
                 }
                 }
         )
