@@ -14,4 +14,4 @@ streamlit
 sentence_transformers
 pickle
 streamlit_card
-transformers
+streamlit-extras
