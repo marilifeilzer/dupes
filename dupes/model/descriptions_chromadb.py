@@ -6,7 +6,9 @@ from dupes.data.clean_data import clean_data
 # Load raw data
 # This needs to be linked to the path of your csv
 
-df = pd.read_csv('/Users/jonamoram/code/marilifeilzer/dupes/raw_data/products_data__0412.csv')
+
+# TODO REPLACE WITH THE BIGQUERY
+df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
 df_cleaned = clean_data(df)
 
 # Common instances
@@ -27,8 +29,7 @@ def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
     collection = chroma_client.get_or_create_collection(name="description_embed")
     collection.add(
         ids=list(dropped['product_id'].values),
-        embeddings=embeddings
-    )
+        embeddings=embeddings)
     return collection
 
 def embedding_description_query_chromadb(query, n_results=5):

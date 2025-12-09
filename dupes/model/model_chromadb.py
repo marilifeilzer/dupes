@@ -25,9 +25,35 @@ def embedding_ingredients(df: pd.DataFrame, exist=False):
 
     return encoded
 
+def create_metadata_dictionairy_properties(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
+    # dropped= df.dropna(subset=cols, axis=0)
+    metadata_dict_encoded= []
+    print(f"This is df imput of create_metadata_dict {df}")
+    ######COMMENDED THIS OUT IN ORDER FOR APIEND POINT TO WORK
+    # for col in cols:
+    #     df[col]= df[col].apply(lambda x: x.split(',')) #changed dropped to df
+
+
+    for i, row in df.iterrows():
+        all_dict= {}
+        for col in cols:
+            tipo_values= row[col]
+
+            tipo_dict= {}
+            for i in tipo_values:
+                i=i.lower().strip().replace(' ', '_')
+                tipo_dict[i]=1
+            all_dict.update(tipo_dict)
+        metadata_dict_encoded.append(all_dict)
+    print(f"This is meta_dict_encoded {metadata_dict_encoded}")
+    # properties_metadata = dropped[cols].to_dict(orient='records')
+    return metadata_dict_encoded
+
 def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
     # dropped= df.dropna(subset=cols, axis=0)
     metadata_dict_encoded= []
+    print(f"This is df imput of create_metadata_dict {df}")
+
     for col in cols:
         df[col]= df[col].apply(lambda x: x.split(',')) #changed dropped to df
 
@@ -43,7 +69,7 @@ def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "colo
                 tipo_dict[i]=1
             all_dict.update(tipo_dict)
         metadata_dict_encoded.append(all_dict)
-
+    print(f"This is meta_dict_encoded {metadata_dict_encoded}")
     # properties_metadata = dropped[cols].to_dict(orient='records')
     return metadata_dict_encoded
 
@@ -77,8 +103,7 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
 
         filter= {'$and': and_list}
 
-    query_embedding= query_embedding.iloc[:,1:].to_numpy().flatten() #added this line
-
+    query_embedding= query_embedding.iloc[:,:].to_numpy().flatten() #adjust this without product id
 
     results = collection.query(
         query_embeddings=[query_embedding],
@@ -89,13 +114,7 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
     return results
 
 # Main functionality
-def embedding_description_get_recommendation(df, query, where, n_results = 5):
-    dropped= embedding_ingredients_get_data(df)
-    embed_ingredients = embedding_ingredients(dropped)
-    metadata_dict= create_metadata_dictionairy(dropped)
-    collection= embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
-    results= embedding_description_query_filtering_chromadb(collection, query,  n_results, where)
-    return results
+
 
 def create_ingr_db() -> None:
     df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_600_ingredients.csv")
@@ -103,6 +122,23 @@ def create_ingr_db() -> None:
     embed_ingredients = embedding_ingredients(dropped)
     metadata_dict= create_metadata_dictionairy(dropped)
     embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
+
+# main_functionallity
+def main_results(product):
+    collection = chroma_client.get_collection(name="ingredients_embed_v2")
+    embed_ex= embedding_ingredients(product, True)
+    metadata_ex= create_metadata_dictionairy_properties(product)
+    results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
+    return results
+
+def main_res_product_id(product_id, df):
+    collection = chroma_client.get_collection(name="ingredients_embed_v2")
+    product = df.loc[df['product_id'] == product_id]
+    embed_ex= embedding_ingredients(product, True)
+    metadata_ex= create_metadata_dictionairy(product)
+    results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
+    return results
+
 
 if __name__ == "__main__":
     df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv")
@@ -130,14 +166,17 @@ if __name__ == "__main__":
     "formula": [['H2O', 'C10H14N2Na2O8', 'C19H38N2O3', 'PPG-5-Ceteth-20', 'C41H80O17', 'C7H5NaO2', 'C8H10O2', 'C6H8O7', 'C16H32O6', 'C10H18O', 'Na4EDTA', 'C9H6O2', 'C10H16', 'C10H20O', 'polyquaternium-7', 'C29H50O2']]
 })
 
+    results = main_results(example2)
+    print(results)
 
-    embeddings= embedding_ingredients(df, False)
-    metadata_dict= create_metadata_dictionairy(df)
-    collection= embedding_ingredients_populate_chromadb(df, embeddings, metadata_dict)
-    embed_ex= embedding_ingredients(example2, True)
-    metadata_ex= create_metadata_dictionairy(example2)
 
-    # res= query_chromadb_ingredients(collection, embeddings.iloc[50, 1:].astype(int).values, 5, where=metadata_dict[0])
-    res= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
-    print(res)
-    breakpoint()
+    # embeddings= embedding_ingredients(df, False)
+    # metadata_dict= create_metadata_dictionairy(df)
+    # collection= embedding_ingredients_populate_chromadb(df, embeddings, metadata_dict)
+    # embed_ex= embedding_ingredients(example2, True)
+    # metadata_ex= create_metadata_dictionairy(example2)
+
+    # # res= query_chromadb_ingredients(collection, embeddings.iloc[50, 1:].astype(int).values, 5, where=metadata_dict[0])
+    # res= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
+    # print(res)
+    # breakpoint()

@@ -11,7 +11,13 @@ uvicorn
 chromadb
 sentence-transformers
 streamlit
-sentence_transformers
-pickle
+requests
 streamlit_card
 streamlit-extras
+python-multipart
+xgboost
+matplotlib
+optuna
+pickle
+json
+google-cloud-bigquery
