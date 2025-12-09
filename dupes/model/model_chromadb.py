@@ -25,13 +25,37 @@ def embedding_ingredients(df: pd.DataFrame, exist=False):
 
     return encoded
 
-def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
+def create_metadata_dictionairy_properties(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
     # dropped= df.dropna(subset=cols, axis=0)
     metadata_dict_encoded= []
     print(f"This is df imput of create_metadata_dict {df}")
     ######COMMENDED THIS OUT IN ORDER FOR APIEND POINT TO WORK
     # for col in cols:
     #     df[col]= df[col].apply(lambda x: x.split(',')) #changed dropped to df
+
+
+    for i, row in df.iterrows():
+        all_dict= {}
+        for col in cols:
+            tipo_values= row[col]
+
+            tipo_dict= {}
+            for i in tipo_values:
+                i=i.lower().strip().replace(' ', '_')
+                tipo_dict[i]=1
+            all_dict.update(tipo_dict)
+        metadata_dict_encoded.append(all_dict)
+    print(f"This is meta_dict_encoded {metadata_dict_encoded}")
+    # properties_metadata = dropped[cols].to_dict(orient='records')
+    return metadata_dict_encoded
+
+def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
+    # dropped= df.dropna(subset=cols, axis=0)
+    metadata_dict_encoded= []
+    print(f"This is df imput of create_metadata_dict {df}")
+
+    for col in cols:
+        df[col]= df[col].apply(lambda x: x.split(',')) #changed dropped to df
 
 
     for i, row in df.iterrows():
@@ -80,8 +104,6 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
         filter= {'$and': and_list}
 
     query_embedding= query_embedding.iloc[:,:].to_numpy().flatten() #adjust this without product id
-    print(query_embedding)
-    print(f"this is query_embedding: {query_embedding}")
 
     results = collection.query(
         query_embeddings=[query_embedding],
@@ -92,13 +114,7 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
     return results
 
 # Main functionality
-def embedding_description_get_recommendation(df, query, where, n_results = 5):
-    dropped= embedding_ingredients_get_data(df)
-    embed_ingredients = embedding_ingredients(dropped)
-    metadata_dict= create_metadata_dictionairy(dropped)
-    collection= embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
-    results= embedding_description_query_filtering_chromadb(collection, query,  n_results, where)
-    return results
+
 
 def create_ingr_db() -> None:
     df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_600_ingredients.csv")
@@ -111,10 +127,17 @@ def create_ingr_db() -> None:
 def main_results(product):
     collection = chroma_client.get_collection(name="ingredients_embed_v2")
     embed_ex= embedding_ingredients(product, True)
-    metadata_ex= create_metadata_dictionairy(product)
+    metadata_ex= create_metadata_dictionairy_properties(product)
     results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
     return results
 
+def main_res_product_id(product_id, df):
+    collection = chroma_client.get_collection(name="ingredients_embed_v2")
+    product = df.loc[df['product_id'] == product_id]
+    embed_ex= embedding_ingredients(product, True)
+    metadata_ex= create_metadata_dictionairy(product)
+    results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
+    return results
 
 
 if __name__ == "__main__":

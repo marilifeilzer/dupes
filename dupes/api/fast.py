@@ -5,6 +5,7 @@ from dupes.model.descriptions_chromadb import embedding_description_query_chroma
 from dupes.model.model_chromadb import main_results
 from dupes.model.optimiser import load_model
 from dupes.model.price_prediction import preprocess_prediction_input
+from dupes.model.model_chromadb import main_results, main_res_product_id
 
 app = FastAPI()
 app.state.model = load_model()
@@ -48,15 +49,19 @@ def get_recommendation(description: str):
 
     return recommendation
 
-df_cleaned= pd.read_csv('raw_data/data_0812.csv')
+
+
+
+df_cleaned= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv')
+dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
 @app.get("/recommend_ingredients")
 def get_recommendation_ingredients(
     # product_id: str,
-    formula: str,
-    color_de_cabello: str,
-    tipo_de_cabello: str,
-    propiedad: str,
+    formula: str = "H2O', 'C10H14N2Na2O8', 'C19H38N2O3', 'PPG-5-Ceteth-20', 'C41H80O17', 'C7H5NaO2', 'C8H10O2', 'C6H8O7', 'C16H32O6', 'C10H18O', 'Na4EDTA', 'C9H6O2', 'C10H16', 'C10H20O', 'polyquaternium-7', 'C29H50O2'",
+    color_de_cabello: str = "todos_los_colores_de_cabello",
+    tipo_de_cabello: str = "Todo tipo de cabello",
+    propiedad: str = "Detergente" ,
 ):
 
     product = pd.DataFrame({
@@ -74,9 +79,6 @@ def get_recommendation_ingredients(
             lambda x: x if isinstance(x, list) else x.split(',')
     )
 
-    print(product)
-    print(type(product))
-
     results = main_results(product)
     product_ids= results['ids'][0]
 
@@ -84,3 +86,17 @@ def get_recommendation_ingredients(
                      loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
 
     return product_names
+
+
+@app.get("/recommend_dupe")
+def get_recommendation_ingredients(
+    product_id: str
+):
+
+    results= main_res_product_id(product_id, dropped)
+
+    product_ids= results['ids'][0]
+
+    df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
+
+    return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
