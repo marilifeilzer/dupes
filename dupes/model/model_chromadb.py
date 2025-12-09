@@ -79,8 +79,9 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
 
         filter= {'$and': and_list}
 
-    query_embedding= query_embedding.iloc[:,1:].to_numpy().flatten() #added this line
-
+    query_embedding= query_embedding.iloc[:,:].to_numpy().flatten() #adjust this without product id
+    print(query_embedding)
+    print(f"this is query_embedding: {query_embedding}")
 
     results = collection.query(
         query_embeddings=[query_embedding],

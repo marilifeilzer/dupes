@@ -53,11 +53,11 @@ def use_encoder_load(dataframe, col):
                  index=dataframe.index
                  )
 
-    if dataframe[["product_id"]] == True:
-        return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
+    # if dataframe[["product_id"]] == True:
+    #     return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
 
-    else:
-        return mlb_df  #added this accidentially in master
+    # else:
+    return mlb_df  
 
 def price_and_vol_clean(data):
 
