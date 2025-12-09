@@ -32,65 +32,65 @@ def get_price_prediction(volume_ml: int  = 350.0,
     return {'prediction': round(pred_price, 2)}
 
 
-# embedding_description_get_recommendation()
-# df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
+embedding_description_get_recommendation()
+df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
 
-# @app.get("/")
-# def index():
-#     return {"working": True}
+@app.get("/")
+def index():
+    return {"working": True}
 
-# @app.get("/recommend")
-# def get_recommendation(description: str):
+@app.get("/recommend")
+def get_recommendation(description: str):
 
-#     recommendation = embedding_description_query_chromadb(description)
+    recommendation = embedding_description_query_chromadb(description)
 
-#     return recommendation
+    return recommendation
 
-# df_cleaned= pd.read_csv('/home/panamas/code/marili/dupes/raw_data/products_cleaned.csv')
-# dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
+df_cleaned= pd.read_csv('/home/panamas/code/marili/dupes/raw_data/products_cleaned.csv')
+dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
-# @app.get("/recommend_ingredients")
-# def get_recommendation_ingredients(
-#     # product_id: str,
-#     formula: str = "H2O', 'C10H14N2Na2O8', 'C19H38N2O3', 'PPG-5-Ceteth-20', 'C41H80O17', 'C7H5NaO2', 'C8H10O2', 'C6H8O7', 'C16H32O6', 'C10H18O', 'Na4EDTA', 'C9H6O2', 'C10H16', 'C10H20O', 'polyquaternium-7', 'C29H50O2'",
-#     color_de_cabello: str = "todos_los_colores_de_cabello",
-#     tipo_de_cabello: str = "Todo tipo de cabello",
-#     propiedad: str = "Detergente" ,
-# ):
+@app.get("/recommend_ingredients")
+def get_recommendation_ingredients(
+    # product_id: str,
+    formula: str = "H2O', 'C10H14N2Na2O8', 'C19H38N2O3', 'PPG-5-Ceteth-20', 'C41H80O17', 'C7H5NaO2', 'C8H10O2', 'C6H8O7', 'C16H32O6', 'C10H18O', 'Na4EDTA', 'C9H6O2', 'C10H16', 'C10H20O', 'polyquaternium-7', 'C29H50O2'",
+    color_de_cabello: str = "todos_los_colores_de_cabello",
+    tipo_de_cabello: str = "Todo tipo de cabello",
+    propiedad: str = "Detergente" ,
+):
 
-#     product = pd.DataFrame({
-#         # "product_id": [product_id],
-#         "formula": [formula],
-#         "color_de_cabello": [color_de_cabello],
-#         "tipo_de_cabello": [tipo_de_cabello],
-#         "propiedad": [propiedad]
-#     })
+    product = pd.DataFrame({
+        # "product_id": [product_id],
+        "formula": [formula],
+        "color_de_cabello": [color_de_cabello],
+        "tipo_de_cabello": [tipo_de_cabello],
+        "propiedad": [propiedad]
+    })
 
-#     cols = ['formula', 'color_de_cabello', 'tipo_de_cabello', 'propiedad']
+    cols = ['formula', 'color_de_cabello', 'tipo_de_cabello', 'propiedad']
 
-#     for col in cols:
-#         product[col] = product[col].apply(
-#             lambda x: x if isinstance(x, list) else x.split(',')
-#     )
+    for col in cols:
+        product[col] = product[col].apply(
+            lambda x: x if isinstance(x, list) else x.split(',')
+    )
 
-#     results = main_results(product)
-#     product_ids= results['ids'][0]
+    results = main_results(product)
+    product_ids= results['ids'][0]
 
-#     product_names = [df_cleaned.
-#                      loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
+    product_names = [df_cleaned.
+                     loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
 
-#     return product_names
+    return product_names
 
 
-# @app.get("/recommend_dupe")
-# def get_recommendation_ingredients(
-#     product_id: str
-# ):
+@app.get("/recommend_dupe")
+def get_recommendation_ingredients(
+    product_id: str
+):
 
-#     results= main_res_product_id(product_id, dropped)
+    results= main_res_product_id(product_id, dropped)
 
-#     product_ids= results['ids'][0]
+    product_ids= results['ids'][0]
 
-#     df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
+    df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-#     return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
+    return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
