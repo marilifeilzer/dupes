@@ -4,6 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Dupes | Shampoos", layout="wide")
 
 # ---------- CUSTOM CSS FOR STYLING ----------
+
 st.markdown("""
 <style>
 
@@ -106,24 +107,13 @@ and we'll help you find the product that best matches your description.
 """, unsafe_allow_html=True)
 
 # BUTTON ROW
-st.markdown("""
-<div class="circle-container">
-    <div class="circle-btn" onclick="window.location.href='?page=dupe'">
-        Find your Dupe here!
-    </div>
-    <div class="circle-btn" onclick="window.location.href='?page=recommendation'">
-        Find your Recommendation
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<div class="circle-container">
-    <button class="circle-btn" onclick="window.location.href='./shampoo_ui'">
-        Find your Dupe here!
-    </button>
-    <button class="circle-btn" onclick="window.location.href='./Interface'">
-        Find your Recommendation
-    </button>
-</div>
-""", unsafe_allow_html=True)
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Find your Dupe here!", key="btn_dupe"):
+        st.switch_page("pages/shampoo.py")
+
+with col2:
+    if st.button("Find your Recommendation", key="btn_reco"):
+        st.switch_page("./interface.py")
