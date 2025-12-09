@@ -6,7 +6,7 @@ from dupes.data.clean_data import clean_data
 # Load raw data
 # This needs to be linked to the path of your csv
 
-df = pd.read_csv('/Users/jonamoram/code/marilifeilzer/dupes/raw_data/products_data__0412.csv')
+df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data__0412 (3).csv')
 df_cleaned = clean_data(df)
 
 # Common instances

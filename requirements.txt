@@ -13,8 +13,9 @@ sentence-transformers
 streamlit
 requests
 sentence_transformers
-pickle
 streamlit_card
+python-multipart
+
 xgboost
 matplotlib
 optuna
