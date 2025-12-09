@@ -8,7 +8,6 @@ def preprocess_data(df: pd.DataFrame):
 
     # Create target data frame
     cols_to_keep = ['price_eur', 'volume_ml', 'ingredients_raw']
-    breakpoint()
     #new version: cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
 
     df_new = df[cols_to_keep]
