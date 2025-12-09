@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     # Create and run the optimization process with 100 trials
     study = optuna.create_study(study_name="xgboost_study", direction='maximize')
-    study.optimize(objective, n_trials=1000, show_progress_bar=True)
+    study.optimize(objective, n_trials=200, show_progress_bar=True)
 
     # Retrieve the best parameter values
     best_params = study.best_params
@@ -80,4 +80,5 @@ if __name__ == '__main__':
     best_model = model_xgb.fit(X, target)
 
     file_name = "xgb_best.pkl"
+    print('...writing to pickle file...')
     pickle.dump(best_model, open(file_name, "wb"))
