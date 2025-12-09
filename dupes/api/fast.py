@@ -100,4 +100,3 @@ def get_recommendation_ingredients(
     df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
     return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
-
