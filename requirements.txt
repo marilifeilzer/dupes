@@ -13,6 +13,7 @@ sentence-transformers
 streamlit
 requests
 streamlit_card
+streamlit-extras
 python-multipart
 xgboost
 matplotlib
