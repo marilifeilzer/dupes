@@ -5,18 +5,15 @@ from streamlit_card import card
 
 
 st.markdown("""
-            # Welcome to Dupes!
+            # Welcome to Dupes! 👋🏻👋🏻
 
-            We are looking foward to help you find the best shampoo
+            ## Our mission is simple: help you find the right shampoo for your needs at a price you’ll love
 
             """)
 
-# User Input
 
-#shampoo_brand_text = st.text_input('You can either tell us the name of the shampoo you need:', placeholder="L'Oreal")
-
-nlp_text = st.text_input("Tell us what kind of shampoo you are looking for:",\
-    placeholder=" I need a moisturuzing shampoo for...")
+nlp_text = st.text_input("Tell us what hair goals you have and we’ll find affordable, high-quality shampoo matches.",\
+    placeholder="frizz control, hydration, volume, repair?")
 
 
 if nlp_text:
@@ -30,7 +27,7 @@ if nlp_text:
     predictions = response.json()
 
     st.markdown("""
-                ## We think these shampoos will be perfect for what you are looking for:
+                ## No ads. No sponsored brands. Just unbiased recommendations 💛
                 """)
 
     for prediction in predictions:
@@ -38,11 +35,11 @@ if nlp_text:
         card(
             title=f"{list(prediction["product_name"].values())[0]}",
             text=[f"{list(prediction["description"].values())[0]}",\
-                f"Price: €{list(prediction["price_eur"].values())[0]}",\
-                    f"Predicted price: €"],
+                    f"Actual price in stores: €{list(prediction["price_eur"].values())[0]}",\
+                        f"The price we think its fair: €"],
             styles={
                 "card": {
-                    "width": "500px",
+                    "width": "100%",
                     "height": "500px",
                     "border-radius": "60px",
                     "box-shadow": "0 0 10px rgba(0,0,0,0.5)"
@@ -52,6 +49,9 @@ if nlp_text:
                 },
                 "filter": {
                     "background-color": "white"
+                },
+                "title" : {
+                    "color": "black"
                 }
                 }
         )
