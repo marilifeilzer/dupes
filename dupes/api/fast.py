@@ -25,7 +25,9 @@ def get_recomendation(description: str):
 
 
 
+
 df_cleaned= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv')
+dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
 @app.get("/recomend_ingredients")
 def get_recommendation_ingredients(
@@ -65,11 +67,10 @@ def get_recommendation_ingredients(
     product_id: str
 ):
 
-    results= main_res_product_id(product_id, df_cleaned)
+    results= main_res_product_id(product_id, dropped)
 
     product_ids= results['ids'][0]
 
-    product_names = [df_cleaned.
-                     loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
+    df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-    return product_names
+    return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
