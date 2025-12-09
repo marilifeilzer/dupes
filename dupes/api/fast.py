@@ -10,6 +10,7 @@ from dupes.model.model_chromadb import main_results, main_res_product_id
 app = FastAPI()
 app.state.model = load_model()
 
+embedding_description_get_recommendation()
 @app.get("/predict_price")
 def get_price_prediction(volume_ml: int  = 350.0,
                          propiedad: str = 'Detergente, Anti-rotura capilar, Nutritivo, Protector, Reparador, Refrescante, Espuma',
