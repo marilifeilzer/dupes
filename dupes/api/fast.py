@@ -23,7 +23,7 @@ def get_recomendation(description: str):
 
     return recomendation
 
-df_cleaned= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data__0412 (3).csv')
+df_cleaned= pd.read_csv('raw_data/data_0812.csv')
 
 @app.get("/recomend_ingredients")
 def get_recommendation_ingredients(
