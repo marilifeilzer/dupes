@@ -7,14 +7,14 @@ from sklearn.model_selection import train_test_split
 def preprocess_data(df: pd.DataFrame):
 
     # Create target data frame
-    cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'formula', 'manufacturer_name']
+    cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
     df_new = df[cols_to_keep]
     df_new = df_new.dropna()
-    df_new['formula'] = df_new['formula'].str.replace('[','')
+    df_new['ingredients_raw'] = df_new['ingredients_raw'].str.replace('[','')
     df_new['manufacturer_name'] = df_new['manufacturer_name'].astype("category")
 
     # Create ingredient features with preserved order
-    df_split = df_new['formula'].str.split(",", expand=True)
+    df_split = df_new['ingredients_raw'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
     # Drop ingredient columns with too many missing values
@@ -27,7 +27,7 @@ def preprocess_data(df: pd.DataFrame):
     df_split = df_split.select_dtypes('object').astype('category')
 
     # Concatenate once more
-    df_new = df_new.drop(columns='formula')
+    df_new = df_new.drop(columns='ingredients_raw')
     df_new = pd.concat([df_new,df_split], axis=1)
 
     # Drop propriedad columnn
