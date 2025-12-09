@@ -13,8 +13,10 @@ sentence-transformers
 streamlit
 requests
 streamlit_card
+python-multipart
 xgboost
 matplotlib
 optuna
 pickle
 json
+google-cloud-bigquery

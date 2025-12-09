@@ -7,8 +7,8 @@ from dupes.data.config import MANUFACTURER_MAP, ORDERED_COLS, PRODUCT_NAME_PATTE
 
 def load_raw_data(file_path: str) -> pd.DataFrame:
     """
-    Load raw CSV data and drop unused columns.
-    If `ingredients_text` exists, keep only rows where it is non-empty.
+    Load raw CSV data and drop unused columns if they exist.
+    Keep only rows where `ingredients_text` is non-empty (when present).
     """
     df = pd.read_csv(file_path)
 
@@ -21,10 +21,10 @@ def load_raw_data(file_path: str) -> pd.DataFrame:
         "tipo_de_producto", "articulo_no", "tyoe", "page", "variant", "url",
     ]
 
-    df = df.drop(columns=[c for c in cols_to_drop if c in df.columns],
-                 errors="ignore")
+    # Drop only those that actually exist
+    df = df.drop(columns=[c for c in cols_to_drop if c in df.columns], errors="ignore")
 
-    # Keep only rows with non-null, non-empty ingredients_text when present
+    # If ingredients_text exists, keep only non-empty rows (old behaviour)
     if "ingredients_text" in df.columns:
         df = df[
             df["ingredients_text"].notna()
@@ -39,28 +39,25 @@ def clean_price_volume(df: pd.DataFrame) -> pd.DataFrame:
     Clean `price` and `volume` columns and create:
     - price_eur (float, EUR)
     - volume_ml (float, ml)
-    Then drop original `price` and `volume` columns if they exist.
+
+    If `price` / `volume` are missing (e.g. pre-cleaned DB),
+    the function is a no-op for those parts.
     """
     df = df.copy()
 
-    # Price
+    # Price → price_eur
     if "price" in df.columns:
         price_str = df["price"].astype(str)
         price_first_number = price_str.str.extract(r"(\d+[.,]\d+)")[0]
 
         df["price_eur"] = (
             price_first_number
-            .str.replace(".", "", regex=False)   # remove thousands separator
-            .str.replace(",", ".", regex=False)  # convert decimal comma to dot
+            .str.replace(".", "", regex=False)   # thousands separator
+            .str.replace(",", ".", regex=False)  # decimal comma → dot
             .pipe(pd.to_numeric, errors="coerce")
         )
 
-        df = df.drop(columns=["price"])
-    else:
-        # Ensure column exists for downstream code
-        df["price_eur"] = np.nan
-
-    # Volume
+    # Volume → volume_ml
     if "volume" in df.columns:
         volume_str = df["volume"].astype(str)
         volume_number = volume_str.str.extract(r"(?i)([\d\.,]+)\s*ml")[0]
@@ -72,9 +69,10 @@ def clean_price_volume(df: pd.DataFrame) -> pd.DataFrame:
             .pipe(pd.to_numeric, errors="coerce")
         )
 
-        df = df.drop(columns=["volume"])
-    else:
-        df["volume_ml"] = np.nan
+    # Drop raw columns only if they exist
+    for col in ["price", "volume"]:
+        if col in df.columns:
+            df = df.drop(columns=[col])
 
     return df
 
@@ -83,9 +81,11 @@ def imputer(df: pd.DataFrame) -> pd.DataFrame:
     """
     Impute missing values for:
     - color_de_cabello: "Todos los colores de cabello"
-    - tipo_de_cabello: "Todo tipo de cabello" (also when literal "nan")
+    - tipo_de_cabello: "Todo tipo de cabello"
     - propiedad: "Detergente"
-    - description: empty string instead of NaN, strip whitespace.
+    - description: "" instead of NaN, stripped
+
+    Operates only on columns that actually exist.
     """
     df = df.copy()
 
@@ -97,8 +97,8 @@ def imputer(df: pd.DataFrame) -> pd.DataFrame:
     if "tipo_de_cabello" in df.columns:
         df["tipo_de_cabello"] = (
             df["tipo_de_cabello"]
-            .replace("nan", pd.NA)
-            .fillna("Todo tipo de cabello")
+            .replace("nan", pd.NA)          # handle literal "nan"
+            .fillna("Todo tipo de cabello") # real NaN / None
         )
 
     if "propiedad" in df.columns:
@@ -114,16 +114,22 @@ def fill_missing_manufacturer(df: pd.DataFrame) -> pd.DataFrame:
     """
     For rows where manufacturer_name is NaN, infer manufacturer from product_name
     by taking everything before 'Champú capilar' (or its mojibake form).
-    If required columns are missing, do nothing.
+
+    If manufacturer_name is missing from schema, it is created.
+    If product_name is missing, function is a no-op.
     """
     df = df.copy()
 
-    if "manufacturer_name" not in df.columns or "product_name" not in df.columns:
-        return df
+    # Ensure manufacturer_name exists
+    if "manufacturer_name" not in df.columns:
+        df["manufacturer_name"] = pd.NA
+
+    if "product_name" not in df.columns:
+        return df.reset_index(drop=True)
 
     mask = df["manufacturer_name"].isna()
     if not mask.any():
-        return df
+        return df.reset_index(drop=True)
 
     # Regex: capture everything BEFORE “Champú capilar” OR “Champ├║ capilar”
     pat = r"^(.*?)\s+Champ(?:ú|├║)\s+capilar"
@@ -136,9 +142,7 @@ def fill_missing_manufacturer(df: pd.DataFrame) -> pd.DataFrame:
         .str.strip()
     )
 
-    df = df.reset_index(drop=True)
-
-    return df
+    return df.reset_index(drop=True)
 
 
 def normalize_name(s: str) -> str:
@@ -159,7 +163,8 @@ def clean_manufacturer(df: pd.DataFrame) -> pd.DataFrame:
     Normalize and canonicalize manufacturer_name into a clean, title-cased column.
     - Uses MANUFACTURER_MAP from config.py
     - Drops original manufacturer_name and replaces it with cleaned version.
-    If manufacturer_name is missing, no-op.
+
+    If manufacturer_name is missing, this is a no-op.
     """
     df = df.copy()
 
@@ -188,7 +193,8 @@ def clean_product_name(df: pd.DataFrame) -> pd.DataFrame:
     """
     Remove generic middle tags like 'Champú capilar' from product_name.
     Uses PRODUCT_NAME_PATTERNS from config.py.
-    If product_name is missing, no-op.
+
+    If product_name is missing, this is a no-op.
     """
     df = df.copy()
 
@@ -211,16 +217,16 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     Full cleaning pipeline on an already-loaded raw DataFrame.
 
     Steps:
-    - clean_price_volume: build price_eur / volume_ml, drop price / volume
+    - clean_price_volume: build price_eur / volume_ml, drop price / volume if present
     - imputer: fill NaNs in color_de_cabello, tipo_de_cabello, propiedad, description
     - fill_missing_manufacturer: infer missing manufacturer_name from product_name
     - clean_manufacturer: normalize + map manufacturer_name using MANUFACTURER_MAP
     - clean_product_name: strip generic middle tags like 'Champú capilar'
-    - reorder columns to ORDERED_COLS when all of them are present
+    - reorder columns to ORDERED_COLS (from config.py), using only those that exist
     """
     df = df.copy()
 
-    # 1) Price / volume
+    # 1) Price / volume (no-op if missing)
     df = clean_price_volume(df)
 
     # 2) Impute missing categorical/text fields
@@ -232,12 +238,12 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # 4) Normalize and canonicalize manufacturer_name
     df = clean_manufacturer(df)
 
-    # 5) Clean product_name (remove generic tags like "Champú capilar")
+    # 5) Clean product_name (remove generic tags like 'Champú capilar')
     df = clean_product_name(df)
 
-    # 6) Reorder columns only if none are missing
-    missing = [c for c in ORDERED_COLS if c not in df.columns]
-    if not missing:
-        df = df[ORDERED_COLS].reset_index(drop=True)
+    # 6) Reorder columns: keep only ORDERED_COLS that actually exist
+    ordered_present = [c for c in ORDERED_COLS if c in df.columns]
+    if ordered_present:
+        df = df[ordered_present]
 
-    return df
+    return df.reset_index(drop=True)
