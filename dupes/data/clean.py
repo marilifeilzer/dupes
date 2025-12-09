@@ -38,36 +38,40 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
         return clean_list
 
 
-    #df["ingredients_formula"] = df["ingredients_raw"].apply(
+    #df["formula"] = df["ingredients_raw"].apply(
     #    lambda lst: [dict_key_formula.get(i) for i in lst ]
     #)
 
 
-    df.ingredients_formula = df.ingredients_raw.apply(get_unique_values)
+    df["formula"] = df.ingredients_raw.apply(get_unique_values)
 
-    #df.ingredients_formula = df.ingredients_formula.apply(list)
+    #df.formula = df.formula.apply(list)
 
-    df.ingredients_formula = df.ingredients_formula.apply(
+    df.formula = df.formula.apply(
         lambda x: [item for item in x if item not in ['not an element', 'not a chemical']]
     )
 
-    df.ingredients_formula = df.ingredients_formula.apply(
+    df.formula = df.formula.apply(
     lambda x: (
         np.nan
         if isinstance(x, list) and x == [None]
         else [item for item in x if item is not None] if isinstance(x, list) else x
     )
     )
+    breakpoint()
+    df.example = df.formula.apply(lambda x: f"{x}")
+    # df.rename(columns= {'formula': 'formula'}, inplace=True)
 
     return df
 
 
 
 if __name__ == "__main__":
-    df = pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/data_0812.csv')
-    df_keys= pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_dict.csv')
+    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/data_0812 (1).csv')
+    df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_dict.csv')
     result = retrieve_formula_ingredients(df_keys=df_keys, df=df, col="ingredients_text")
-    output_path = "/Users/panamas/code/marili/dupes/raw_data/products_0812.csv"
+    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv"
+
     result.to_csv(output_path, index=False)
 
     print(result)

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import pandas as pd
 from dupes.logic import predict_shampoo
 from dupes.model.descriptions_chromadb import embedding_description_query_chromadb, embedding_description_get_recommendation
-from dupes.model.model_chromadb import main_results
+from dupes.model.model_chromadb import main_results, main_res_product_id
 
 app = FastAPI()
 
@@ -23,7 +23,9 @@ def get_recomendation(description: str):
 
     return recomendation
 
-df_cleaned= pd.read_csv('raw_data/data_0812.csv')
+
+
+df_cleaned= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv')
 
 @app.get("/recomend_ingredients")
 def get_recommendation_ingredients(
@@ -50,6 +52,21 @@ def get_recommendation_ingredients(
     )
 
     results = main_results(product)
+    product_ids= results['ids'][0]
+
+    product_names = [df_cleaned.
+                     loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
+
+    return product_names
+
+
+@app.get("/recommend_dupe")
+def get_recommendation_ingredients(
+    product_id: str
+):
+
+    results= main_res_product_id(product_id, df_cleaned)
+
     product_ids= results['ids'][0]
 
     product_names = [df_cleaned.
