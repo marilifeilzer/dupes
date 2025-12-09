@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 
-def preprocess_data(df: pd.DataFrame):
+def preprocess_data(df: pd.DataFrame, predict_prepro=False):
 
     # Create target data frame
     cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
@@ -18,8 +18,9 @@ def preprocess_data(df: pd.DataFrame):
     df_split = df_split.replace('[','')
 
     # Drop ingredient columns with too many missing values
-    # note: from ingredient 18 onwards, we have 100/360 missing values
-    for index in range(40,52):
+    # note: from ingredient 40 onwards, we have a significant amount of missing values
+    num_ingr = len(df_split.columns)
+    for index in range(40,num_ingr):
         df_split = df_split.drop(columns=index)
 
     df_split.columns = [f'_{col}' if type(col) == int  else col for col in df_split.columns]
@@ -37,12 +38,11 @@ def preprocess_data(df: pd.DataFrame):
 
 def train_model(df: pd.DataFrame):
 
+    # Define target and features
     target = df['price_eur'] / df['volume_ml']
-    log_y = np.log(target)
-
     X = df.drop(columns=['price_eur'])
 
-    # Create eval test just for early-stopping purposes
+    # Create validation split for early-stopping purposes
     X_train, X_eval, y_train, y_eval = train_test_split(
         X,
         target,
@@ -69,6 +69,38 @@ def train_model(df: pd.DataFrame):
         eval_set=[(X_train, y_train), (X_eval, y_eval)])
 
     return model_xgb_early_stopping
+
+def preprocess_prediction_input(df: pd.DataFrame):
+
+    # Wrangle prediction input in the same way as the training data
+    df['ingredients_raw'] = df['ingredients_raw'].str.replace('[','')
+    df['manufacturer_name'] = df['manufacturer_name'].astype("category")
+
+    # Create ingredient features with preserved order
+    df_split = df['ingredients_raw'].str.split(",", expand=True)
+    df_split = df_split.replace('[','')
+
+    # Fix: add empty columns until ingredient with index 40 (including)
+    num_ingr = len(df_split.columns)
+
+    if num_ingr <=40:
+        for i in range(num_ingr, 40):
+            df_split[i] = ' '
+
+    for index in range(40,num_ingr):
+        df_split = df_split.drop(columns=index)
+
+    df_split.columns = [f'_{col}' if type(col) == int  else col for col in df_split.columns]
+    df_split = df_split.select_dtypes('object').astype('category')
+
+    # Concatenate once more
+    df = df.drop(columns='ingredients_raw')
+    df = pd.concat([df,df_split], axis=1)
+
+    # Drop propriedad columnn
+    df = df.drop(columns='propiedad')
+
+    return df
 
 if __name__ == '__main__':
 

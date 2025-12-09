@@ -16,6 +16,7 @@ preprocess = preprocess_data(df)
 target = preprocess['price_eur'] / preprocess['volume_ml']
 X = preprocess.drop(columns=['price_eur'])
 
+# Optimise the model with hyper parameter tuning
 def objective(trial):
 
     # Define Optuna hyper parameters
@@ -44,12 +45,20 @@ def objective(trial):
 
     return score
 
+# Load pickle with fitted model
+def load_model():
+
+    file_name = "xgb_best.pkl"
+    loaded_model = pickle.load(open(file_name, "rb"))
+
+    return loaded_model
+
 
 if __name__ == '__main__':
 
     # Create and run the optimization process with 100 trials
     study = optuna.create_study(study_name="xgboost_study", direction='maximize')
-    study.optimize(objective, n_trials=500, show_progress_bar=True)
+    study.optimize(objective, n_trials=1000, show_progress_bar=True)
 
     # Retrieve the best parameter values
     best_params = study.best_params
@@ -60,7 +69,6 @@ if __name__ == '__main__':
         json.dump(best_params, f)
 
     # Save best model as pickle
-
     with open('best_params.json', 'r') as f:
         best_params = json.load(f)
 

@@ -6,7 +6,9 @@ from dupes.data.clean_data import clean_data
 # Load raw data
 # This needs to be linked to the path of your csv
 
-df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_data__0412 (3).csv')
+
+# TODO REPLACE WITH THE BIGQUERY
+df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
 df_cleaned = clean_data(df)
 
 # Common instances
