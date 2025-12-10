@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.title("""
-            WELCOM TO DUPES
+            WELCOME TO DUPES
 
             """, text_alignment= 'center')
 
