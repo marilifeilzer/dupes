@@ -1,18 +1,23 @@
 import streamlit as st
 import pandas as pd
 import requests
+from dupes.data.gc_client import load_table_to_df
 
-# df = pd.read_csv("/Users/jonamoram/code/marilifeilzer/dupes/raw_data/data_0812.csv")
+df = load_table_to_df()
 
-# shampoos_options = df[["product_id","product_name"]]
+shampoos_options = df[["product_id","product_name"]]
 
+st.header(body="Product name", text_alignment="center")
 
-# shampoo_input = st.selectbox(label="Name of the shampoo: ",\
-#     options=shampoos_options["product_name"], placeholder="type the name of the shampoo", index=None)
+shampoo_input = st.selectbox(label="Product name",\
+    options=shampoos_options["product_name"], placeholder="Product name",\
+        label_visibility="collapsed", index=None)
 
-# shampoo_id = shampoos_options.loc[shampoos_options["product_name"] == shampoo_input, "product_id"].values[0]
+st.text(body="Type the product name into the search bar and choose the option that matches what you're looking for.")
 
-# if shampoo_id:
+# if shampoo_input:
+
+#     shampoo_id = shampoos_options.loc[shampoos_options["product_name"] == shampoo_input, "product_id"].values[0]
 
 #     params = dict(product_id=shampoo_id)
 

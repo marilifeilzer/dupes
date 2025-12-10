@@ -48,7 +48,6 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
     dataset = dataset or env_dataset
     table = table or env_table
-
     client = get_bq_client()
     table_id = f"{project_id}.{dataset}.{table}"
 
@@ -78,7 +77,7 @@ def _ensure_gcs_env() -> tuple[str, str, str | None]:
     project_id = os.getenv("GCP_PROJECT")
     bucket_name = os.getenv("GCS_BUCKET_MODELS")
     prefix_raw = os.getenv("GCS_MODELS_PREFIX", "").rstrip("/")
-
+    breakpoint()
     prefix = prefix_raw or None
     return project_id, bucket_name, prefix
 
@@ -122,3 +121,6 @@ def download_model(blob_name: str, dest_path: str | Path) -> Path:
 
     blob.download_to_filename(dest_path)
     return dest_path
+
+if __name__ == "__main__":
+    load_table_to_df()
