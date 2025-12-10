@@ -8,7 +8,7 @@ from google.cloud import bigquery, storage
 load_dotenv()  # loads .env into os.environ
 
 REQUIRED_BQ_ENV_VARS = [
-    "GCP_PROJECT_ID",
+    "GCP_PROJECT",
     "BQ_DATASET",
     "BQ_TABLE",
     "GOOGLE_APPLICATION_CREDENTIALS",
@@ -24,7 +24,7 @@ def _ensure_bq_env() -> tuple[str, str, str, str]:
     if missing:
         raise ValueError(f"Missing required env vars for BigQuery: {', '.join(missing)}")
 
-    project_id = os.getenv("GCP_PROJECT_ID")
+    project_id = os.getenv("GCP_PROJECT")
     dataset = os.getenv("BQ_DATASET")
     table = os.getenv("BQ_TABLE")
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
@@ -61,7 +61,7 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
 
 REQUIRED_GCS_ENV_VARS = [
-    "GCP_PROJECT_ID",
+    "GCP_PROJECT",
     "GCS_BUCKET_MODELS",
 ]
 
@@ -75,7 +75,7 @@ def _ensure_gcs_env() -> tuple[str, str, str | None]:
     if missing:
         raise ValueError(f"Missing required env vars for GCS: {', '.join(missing)}")
 
-    project_id = os.getenv("GCP_PROJECT_ID")
+    project_id = os.getenv("GCP_PROJECT")
     bucket_name = os.getenv("GCS_BUCKET_MODELS")
     prefix_raw = os.getenv("GCS_MODELS_PREFIX", "").rstrip("/")
 

@@ -7,14 +7,20 @@ from xgboost import XGBRegressor
 import optuna
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split, cross_val_score
+from dupes.data.gc_client import load_table_to_df
 
 # Create data
-file = '/Users/panamas/code/marili/dupes/raw_data/products_0812.csv'
-df = pd.read_csv(file)
-preprocess = preprocess_data(df)
+# file = '/home/marili/code/marilifeilzer/dupes/raw_data/products_data_rawlatest.csv'
+# df = pd.read_csv(file)
+# preprocess = preprocess_data(df)
 
-target = preprocess['price_eur'] / preprocess['volume_ml']
-X = preprocess.drop(columns=['price_eur'])
+df= load_table_to_df()
+
+# target = preprocess['price_eur'] / preprocess['volume_ml']
+# X = preprocess.drop(columns=['price_eur'])
+
+target = df['price_eur'] / df['volume_ml']
+X = df.drop(columns=['price_eur'])
 
 # Optimise the model with hyper parameter tuning
 def objective(trial):
