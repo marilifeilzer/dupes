@@ -13,9 +13,7 @@ app.state.model = load_model()
 embedding_description_get_recommendation()
 @app.get("/predict_price")
 def get_price_prediction(volume_ml: int  = 350.0,
-                         propiedad: str = 'Detergente, Anti-rotura capilar, Nutritivo, Protector, Reparador, Refrescante, Espuma',
-                         ingredients_raw: str = "Water, Cetearyl Alcohol, PPG-3 Benzyl Ether Myristate, Caprylic/Capric Triglyceride, Cetyl Alcohol,Octyldodecyl Ricinoleate, Quaternium-91, Cetrimonium Chloride, Divinyldimethicone/Dimethicone Copolymer, Behentrimonium Chloride, Glycerin, Cetyl Esters, Isododecane, Bis-Aminopropyl Diglycol Dimaleate, Fragrance, Panthenol, Phospholipids, Dimethicone PEG-7 Isostearate, Pseudozyma Epicola/Argania Spinosa Kernel Oil Ferment Filtrate, Pseudozyma Epicola/Camellia Sinensis Seed Oil Ferment Extract Filtrate, Tocopheryl Linoleate/Oleate, Quaternium-95, Propanediol, Punica Granatum Extract, Morinda Citrifolia Fruit Extract, PEG-8, Euterpe Oleracea Fruit Extract, Camellia Sinensis Seed Oil, Crambe Abyssinica Seed Oil, Hydroxypropyl Cyclodextrin, Persea Gratissima (Avocado) Oil, Vitis Vinifera (Grape) Seed Oil, Disodium EDTA, Polysilicone-15, C11-15 Pareth-7, Hydroxypropyl Guar, Glycine Soja (Soybean) Oil, PEG-45M, PEG-7 Amodimethicone, Amodimethicone, C12-13 Pareth-23, C12-13 Pareth-3, Laureth-9, Pentaerythrityl Tetra-Di-T-Butyl Hydroxyhydrocinnamate, PEG-4, Phenoxyethanol, Hexyl Cinnamal.",
-                         manufacturer_name: str = 'Obelis S.A'
+                         ingredients_raw: str = "Water, Cetearyl Alcohol, PPG-3 Benzyl Ether Myristate, Caprylic/Capric Triglyceride, Cetyl Alcohol,Octyldodecyl Ricinoleate, Quaternium-91, Cetrimonium Chloride, Divinyldimethicone/Dimethicone Copolymer, Behentrimonium Chloride, Glycerin, Cetyl Esters, Isododecane, Bis-Aminopropyl Diglycol Dimaleate, Fragrance, Panthenol, Phospholipids, Dimethicone PEG-7 Isostearate, Pseudozyma Epicola/Argania Spinosa Kernel Oil Ferment Filtrate, Pseudozyma Epicola/Camellia Sinensis Seed Oil Ferment Extract Filtrate, Tocopheryl Linoleate/Oleate, Quaternium-95, Propanediol, Punica Granatum Extract, Morinda Citrifolia Fruit Extract, PEG-8, Euterpe Oleracea Fruit Extract, Camellia Sinensis Seed Oil, Crambe Abyssinica Seed Oil, Hydroxypropyl Cyclodextrin, Persea Gratissima (Avocado) Oil, Vitis Vinifera (Grape) Seed Oil, Disodium EDTA, Polysilicone-15, C11-15 Pareth-7, Hydroxypropyl Guar, Glycine Soja (Soybean) Oil, PEG-45M, PEG-7 Amodimethicone, Amodimethicone, C12-13 Pareth-23, C12-13 Pareth-3, Laureth-9, Pentaerythrityl Tetra-Di-T-Butyl Hydroxyhydrocinnamate, PEG-4, Phenoxyethanol, Hexyl Cinnamal"
                          ):
 
     # Create dataframe with the input variables for the prediction
@@ -28,16 +26,14 @@ def get_price_prediction(volume_ml: int  = 350.0,
     model = app.state.model
 
     # Make the prediction
-
-
     pred_price_ml = model.predict(preproc).tolist()
     pred_price = pred_price_ml[0] * volume_ml
 
     return {'prediction': round(pred_price, 2)}
 
 
-# embedding_description_get_recommendation()
-# df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
+embedding_description_get_recommendation()
+df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
 
 @app.get("/")
 def index():
@@ -50,10 +46,7 @@ def get_recommendation(description: str):
 
     return recommendation
 
-
-
-
-df_cleaned= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv')
+df_cleaned= pd.read_csv('/home/panamas/code/marili/dupes/raw_data/products_cleaned.csv')
 dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
 @app.get("/recommend_ingredients")
