@@ -70,7 +70,7 @@ def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "colo
                 tipo_dict[i]=1
             all_dict.update(tipo_dict)
         metadata_dict_encoded.append(all_dict)
-    print(f"This is meta_dict_encoded {metadata_dict_encoded}")
+
     # properties_metadata = dropped[cols].to_dict(orient='records')
     return metadata_dict_encoded
 
@@ -118,7 +118,8 @@ def query_chromadb_ingredients(collection, query_embedding, n_results, where=Non
 
 
 def create_ingr_db() -> None:
-    df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_600_ingredients.csv")
+    df= load_table_to_df()
+
     dropped= embedding_ingredients_get_data(df)
     embed_ingredients = embedding_ingredients(dropped)
     metadata_dict= create_metadata_dictionairy(dropped)
@@ -143,6 +144,7 @@ def main_res_product_id(product_id, df):
 
 if __name__ == "__main__":
     df= load_table_to_df()
+    create_ingr_db()
 
 
 

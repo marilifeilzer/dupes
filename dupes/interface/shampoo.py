@@ -15,15 +15,22 @@ shampoo_input = st.selectbox(label="Product name",\
 
 st.text(body="Type the product name into the search bar and choose the option that matches what you're looking for.")
 
-# if shampoo_input:
+if shampoo_input:
 
-#     shampoo_id = shampoos_options.loc[shampoos_options["product_name"] == shampoo_input, "product_id"].values[0]
+    shampoo_id = shampoos_options.loc[shampoos_options["product_name"] == shampoo_input, "product_id"].values[0]
 
-#     params = dict(product_id=shampoo_id)
+    params = dict(product_id=shampoo_id)
 
-#     # TODO: Change the api URL to google after the test in local
+    # TODO: Change the api URL to google after the test in local
 
-#     dupes_web_api = "http://127.0.0.1:8000/recommend_dupe"
-#     response = requests.get(dupes_web_api,params=params)
+    dupes_web_api = "http://127.0.0.1:8000/recommend_dupe"
+    response = requests.get(dupes_web_api,params=params)
 
-#     predictions = response.json()
+    predictions = response.json()
+
+    for prediction in predictions:
+
+        with st.container(border= True):
+            st.title(f"{prediction["product_name"]}")
+            st.caption(f"{prediction["en_description"]}")
+            st.caption(f"Actual price in stores: €{prediction["price_eur"]}")
