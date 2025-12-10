@@ -93,6 +93,13 @@ def get_recommendation_ingredients(
 
     product_ids= results['ids'][0]
 
-    df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-    return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
+    #breakpoint()
+    #df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
+
+
+    #return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
+
+    results_df = df.loc[df["product_id"].isin(product_ids), ["product_name","price_eur", "en_description"]].to_dict(orient="records")
+
+    return results_df
