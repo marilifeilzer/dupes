@@ -54,7 +54,7 @@ html, body, [class*="css"] {
     margin: auto;
 }
 
-/* Circular buttons */
+/* Circular buttons container */
 .circle-container {
     display: flex;
     justify-content: center;
@@ -62,6 +62,7 @@ html, body, [class*="css"] {
     margin-top: 60px;
 }
 
+/* Circular buttons base styling */
 .circle-btn {
     width: 250px;
     height: 250px;
@@ -74,17 +75,57 @@ html, body, [class*="css"] {
     color: white;
     font-size: 22px;
     font-weight: 600;
-    cursor: pointer;
     transition: 0.3s;
 }
 
+/* Hover effect */
 .circle-btn:hover {
     background-color: #6b6597;
 }
 
+/* Invisible Streamlit button */
+.circle-wrapper {
+    position: relative;
+    width: 250px;
+    height: 250px;
+}
+
+.circle-wrapper > div > button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 250px;
+    opacity: 0;
+    cursor: pointer;
+.circle-container {
+    display: flex;
+    justify-content: center;
+    gap: 150px;
+    margin-top: 60px;
+}
+
+/* Make the actual Streamlit button look like your circle button */
+div.stButton > button {
+    width: 250px !important;
+    height: 250px !important;
+    border-radius: 50% !important;
+    background-color: #7d78ab !important;
+    color: white !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    transition: 0.3s !important;
+}
+
+/* Hover effect */
+div.stButton > button:hover {
+    background-color: #6b6597 !important;
+}
+}
+
 </style>
 """, unsafe_allow_html=True)
-
 
 # ---------- UI LAYOUT ----------
 # HEADER BAR
@@ -106,14 +147,41 @@ and we'll help you find the product that best matches your description.
 </div>
 """, unsafe_allow_html=True)
 
-# BUTTON ROW
+# ---------- CIRCULAR BUTTONS WITH NAVIGATION ----------
+st.markdown('<div class="circle-container">', unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+# Button 1
+st.markdown("""
+<div class="circle-wrapper">
+    <div class="circle-btn">Find your Dupe here!</div>
+</div>
+""", unsafe_allow_html=True)
+
+if st.button("go_dupe", key="btn_dupe"):
+    st.switch_page("pages/shampoo.py")
+
+# Button 2
+st.markdown("""
+<div class="circle-wrapper">
+    <div class="circle-btn">Find your Recommendation</div>
+</div>
+""", unsafe_allow_html=True)
+
+if st.button("go_reco", key="btn_reco"):
+    st.switch_page("interface.py")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="circle-container">', unsafe_allow_html=True)
+
+col1, col2 = st.columns([1,1])
 
 with col1:
-    if st.button("Find your Dupe here!", key="btn_dupe"):
+    if st.button("Find your Dupe here!", key="go_dupe"):
         st.switch_page("pages/shampoo.py")
 
 with col2:
-    if st.button("Find your Recommendation", key="btn_reco"):
-        st.switch_page("./interface.py")
+    if st.button("Find your Recommendation", key="go_reco"):
+        st.switch_page("interface.py")
+
+st.markdown('</div>', unsafe_allow_html=True)
