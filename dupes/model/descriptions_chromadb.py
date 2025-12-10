@@ -46,7 +46,7 @@ def embedding_description_query_chromadb(query, n_results=5):
     df['volume_ml'] = df['volume_ml'].astype('object').fillna('no data')
     df['price_eur'] = df['volume_ml'].astype('object').fillna('no data') #  added this
 
-    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "en_description", 'volume_ml']] for product in results]
+    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "en_description", 'volume_ml', 'formula']] for product in results]
 
     return product_names
 
