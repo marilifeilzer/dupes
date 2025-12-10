@@ -8,7 +8,7 @@ from google.cloud import bigquery, storage
 load_dotenv()  # loads .env into os.environ
 
 REQUIRED_BQ_ENV_VARS = [
-    "GCP_PROJECT_ID",
+    "GCP_PROJECT",
     "BQ_DATASET",
     "BQ_TABLE",
     "GOOGLE_APPLICATION_CREDENTIALS",
@@ -24,7 +24,7 @@ def _ensure_bq_env() -> tuple[str, str, str, str]:
     if missing:
         raise ValueError(f"Missing required env vars for BigQuery: {', '.join(missing)}")
 
-    project_id = os.getenv("GCP_PROJECT_ID")
+    project_id = os.getenv("GCP_PROJECT")
     dataset = os.getenv("BQ_DATASET")
     table = os.getenv("BQ_TABLE")
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
@@ -48,7 +48,6 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
     dataset = dataset or env_dataset
     table = table or env_table
-
     client = get_bq_client()
     table_id = f"{project_id}.{dataset}.{table}"
 
@@ -61,7 +60,7 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
 
 REQUIRED_GCS_ENV_VARS = [
-    "GCP_PROJECT_ID",
+    "GCP_PROJECT",
     "GCS_BUCKET_MODELS",
 ]
 
@@ -75,10 +74,10 @@ def _ensure_gcs_env() -> tuple[str, str, str | None]:
     if missing:
         raise ValueError(f"Missing required env vars for GCS: {', '.join(missing)}")
 
-    project_id = os.getenv("GCP_PROJECT_ID")
+    project_id = os.getenv("GCP_PROJECT")
     bucket_name = os.getenv("GCS_BUCKET_MODELS")
     prefix_raw = os.getenv("GCS_MODELS_PREFIX", "").rstrip("/")
-
+    breakpoint()
     prefix = prefix_raw or None
     return project_id, bucket_name, prefix
 
@@ -122,3 +121,6 @@ def download_model(blob_name: str, dest_path: str | Path) -> Path:
 
     blob.download_to_filename(dest_path)
     return dest_path
+
+if __name__ == "__main__":
+    load_table_to_df()
