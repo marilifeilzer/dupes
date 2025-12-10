@@ -18,7 +18,5 @@ python-multipart
 xgboost
 matplotlib
 optuna
-pickle
-json
 google-cloud-bigquery
 google-cloud-storage
