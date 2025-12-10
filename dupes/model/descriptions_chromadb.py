@@ -16,7 +16,7 @@ CHROMA_DIR = DESC_DIR / "chroma"
 CHROMA_ARCHIVE = DESC_DIR / "chroma.tar.gz"
 GCS_CHROMA_BLOB = os.getenv("DESCRIPTION_CHROMA_BLOB", "descriptions/chroma.tar.gz")
 
-
+# Make sure paths exist inside container
 def _ensure_dirs() -> None:
     DESC_DIR.mkdir(parents=True, exist_ok=True)
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
@@ -33,11 +33,10 @@ def _extract_chroma(archive_path: Path, dest_dir: Path) -> None:
     with tarfile.open(archive_path, "r:gz") as tar:
         tar.extractall(dest_dir)
 
-
+    # Check if files exist locally, if not downloads them
 def ensure_description_artifacts() -> None:
     _ensure_dirs()
     
-    # Check if files exist locally, if not downloads them
     chroma_db_path = CHROMA_DIR / "chroma.sqlite3"
     if not chroma_db_path.is_file():
         if CHROMA_ARCHIVE.is_file():
