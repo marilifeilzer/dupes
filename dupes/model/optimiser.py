@@ -10,15 +10,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from dupes.data.gc_client import load_table_to_df
 
 # Create data
-# file = '/home/marili/code/marilifeilzer/dupes/raw_data/products_data_rawlatest.csv'
-# df = pd.read_csv(file)
-# preprocess = preprocess_data(df)
-
 df= load_table_to_df()
-
-# target = preprocess['price_eur'] / preprocess['volume_ml']
-# X = preprocess.drop(columns=['price_eur'])
-
 target = df['price_eur'] / df['volume_ml']
 X = df.drop(columns=['price_eur'])
 
@@ -57,9 +49,12 @@ def objective(trial):
     return score
 
 # Load pickle with fitted model
-def load_model():
+def load_model(manufacturer = False):
 
-    file_name = "xgb_best.pkl"
+    if manufacturer:
+        file_name = "xgb_best_manu.pkl"
+    else:
+        file_name = "xgb_best.pkl"
     loaded_model = pickle.load(open(file_name, "rb"))
 
     return loaded_model
@@ -67,8 +62,10 @@ def load_model():
 
 if __name__ == '__main__':
 
-    preprocess = preprocess_data(df)
+    # Put this flag to True or False to include/exclude the name of the brand as a feature
+    manufacturer = True
 
+    preprocess = preprocess_data(df, manufacturer)
     target = preprocess['price_eur'] / preprocess['volume_ml']
     X = preprocess.drop(columns=['price_eur'])
 
@@ -95,6 +92,10 @@ if __name__ == '__main__':
                              nthread = -1)
     best_model = model_xgb.fit(X, target)
 
-    file_name = "xgb_best.pkl"
+    if manufacturer:
+        file_name = "xgb_best_manu.pkl"
+    else:
+        file_name = "xgb_best.pkl"
+
     print('...writing to pickle file...')
     pickle.dump(best_model, open(file_name, "wb"))

@@ -5,16 +5,16 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from dupes.data.gc_client import load_table_to_df
 
-def preprocess_data(df: pd.DataFrame):
+def preprocess_data(df: pd.DataFrame, manufacturer = False):
 
-    # Create target data frame
+    # Create data frame
     cols_to_keep = ['price_eur', 'volume_ml', 'formula']
-    #new version: cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'formula', 'manufacturer_name']
+    if manufacturer:
+        cols_to_keep.append('manufacturer_name')
 
     df_new = df[cols_to_keep]
     df_new = df_new.dropna()
     df_new['formula'] = df_new['formula'].str.replace('[','')
-    #new version: df_new['manufacturer_name'] = df_new['manufacturer_name'].astype("category")
 
     split_ingr_threshold = 50
     # note: from ingredient 50 onwards, we have a significant amount of missing values
@@ -35,6 +35,9 @@ def preprocess_data(df: pd.DataFrame):
     # Concatenate once more
     df_new = df_new.drop(columns='formula')
     df_new = pd.concat([df_new,df_split], axis=1)
+
+    if manufacturer:
+        df_new['manufacturer_name'] = df_new['manufacturer_name'].astype('category')
 
     return df_new
 
@@ -72,14 +75,19 @@ def train_model(df: pd.DataFrame):
 
     return model_xgb_early_stopping
 
-def preprocess_prediction_input(df: pd.DataFrame):
+def preprocess_prediction_input(df: pd.DataFrame, manufacturer = False):
 
-    # Wrangle prediction input in the same way as the training data
-    df['formula'] = df['formula'].str.replace('[','')
-    #new version: df['manufacturer_name'] = df['manufacturer_name'].astype("category")
+    # Create data frame
+    cols_to_keep = ['price_eur', 'volume_ml', 'formula']
+    if manufacturer:
+        cols_to_keep.append('manufacturer_name')
+
+    df_new = df[cols_to_keep]
+    df_new = df_new.dropna()
+    df_new['formula'] = df_new['formula'].str.replace('[','')
 
     # Create ingredient features with preserved order
-    df_split = df['formula'].str.split(",", expand=True)
+    df_split = df_new['formula'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
     # Fix: add empty columns until split_ingr_threshold
@@ -98,8 +106,11 @@ def preprocess_prediction_input(df: pd.DataFrame):
     df_split = df_split.select_dtypes('object').astype('category')
 
     # Concatenate once more
-    df = df.drop(columns='formula')
-    df = pd.concat([df,df_split], axis=1)
+    df_new = df_new.drop(columns='formula')
+    df = pd.concat([df_new,df_split], axis=1)
+
+    if manufacturer:
+        df_new['manufacturer_name'] = df_new['manufacturer_name'].astype('category')
 
     return df
 
