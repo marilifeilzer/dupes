@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_navigation_bar import st_navbar
+#from streamlit_navigation_bar import st_navbar
 from streamlit_card import card
 import requests
 
@@ -23,7 +23,7 @@ if nlp_text:
     dupes_web_api_price = "http://127.0.0.1:8000//recommend_with_price"
     response_price = requests.get(dupes_web_api_price, params=params)
     predict_prices = response_price.json()
-    
+
     st.markdown("""
                 ### No ads. No sponsored brands. Just unbiased recommendations.
                 """)
