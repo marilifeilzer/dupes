@@ -1,16 +1,21 @@
 from fastapi import FastAPI
 import pandas as pd
+
 from dupes.logic import predict_shampoo
-from dupes.model.descriptions_chromadb import embedding_description_query_chromadb, embedding_description_get_recommendation
-from dupes.model.model_chromadb import main_results
+from dupes.model.descriptions_chromadb import (
+    embedding_description_get_recommendation,
+    embedding_description_query_chromadb,
+)
+from dupes.model.model_chromadb import ensure_ingredients_artifacts, main_res_product_id, main_results
 from dupes.model.optimiser import load_model
 from dupes.model.price_prediction import preprocess_prediction_input
-from dupes.model.model_chromadb import main_results, main_res_product_id
 from dupes.data.gc_client import load_table_to_df
 
 app = FastAPI()
 app.state.model = load_model()
 
+ensure_ingredients_artifacts()
+embedding_description_get_recommendation()
 df= load_table_to_df()
 
 
@@ -46,8 +51,6 @@ def get_recommendation(description: str):
 
     return recommendation
 
-
-
 @app.get("/recommend_ingredients")
 def get_recommendation_ingredients(
     # product_id: str,
@@ -75,8 +78,6 @@ def get_recommendation_ingredients(
     results = main_results(product)
     product_ids= results['ids'][0]
 
-
-
     product_names = [df.
                      loc[df["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
 
@@ -97,3 +98,6 @@ def get_recommendation_ingredients(
     df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
     return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
+
+if __name__ == "__main__":
+    pass

@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-
 import pandas as pd
 from dotenv import load_dotenv
 from google.cloud import bigquery, storage
@@ -13,7 +12,6 @@ REQUIRED_BQ_ENV_VARS = [
     "BQ_TABLE",
     "GOOGLE_APPLICATION_CREDENTIALS",
 ]
-
 
 def _ensure_bq_env() -> tuple[str, str, str, str]:
     """
@@ -57,13 +55,10 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
     return df
 
-
-
 REQUIRED_GCS_ENV_VARS = [
     "GCP_PROJECT",
     "GCS_BUCKET_MODELS",
 ]
-
 
 def _ensure_gcs_env() -> tuple[str, str, str | None]:
     """
