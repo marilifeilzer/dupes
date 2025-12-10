@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
+from dupes.data.gc_client import load_table_to_df
 
 def preprocess_data(df: pd.DataFrame):
 
@@ -105,8 +106,8 @@ def preprocess_prediction_input(df: pd.DataFrame):
 if __name__ == '__main__':
 
     # Run previous methods
-    file = '/Users/panamas/code/marili/dupes/raw_data/products_clean_ingredients_rank_2.csv'
-    df = pd.read_csv(file)
+    file = '/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv'
+    df = load_table_to_df()
     preprocess = preprocess_data(df)
     model = train_model(preprocess)
 

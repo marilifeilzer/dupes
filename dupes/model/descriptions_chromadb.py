@@ -2,14 +2,17 @@ import pandas as pd
 from sentence_transformers import SentenceTransformer
 import chromadb
 from dupes.data.clean_data import clean_data
+from dupes.data.gc_client import load_table_to_df
 
 # Load raw data
 # This needs to be linked to the path of your csv
 
 
-# TODO REPLACE WITH THE BIGQUERY
-df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
-df_cleaned = clean_data(df)
+# # TODO REPLACE WITH THE BIGQUERY
+# df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
+# df_cleaned = clean_data(df)
+
+df= load_table_to_df()
 
 # Common instances
 model = SentenceTransformer("all-mpnet-base-v2")
@@ -40,13 +43,13 @@ def embedding_description_query_chromadb(query, n_results=5):
         n_results=n_results)
 
     results = results["ids"][0]
-    product_names = [df_cleaned.loc[df_cleaned["product_id"]==product, ["product_name","price_eur", "description"]]for product in results]
+    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "description"]]for product in results]
 
     return product_names
 
 # Main functionality
 def embedding_description_get_recommendation():
 
-    dropped_desc = embedding_description_get_data(df_cleaned)
+    dropped_desc = embedding_description_get_data(df)
     embeddings_desc = embedding_description_embed(dropped_desc)
     collection_desc = embedding_description_populate_chromadb(dropped_desc, embeddings_desc)

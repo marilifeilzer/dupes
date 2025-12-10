@@ -4,6 +4,7 @@ from dupes.data.properties import encode_properties, use_encoder_load
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 import chromadb
+from dupes.data.gc_client import load_table_to_df
 
 # Common instances
 model = SentenceTransformer("all-mpnet-base-v2")
@@ -141,9 +142,9 @@ def main_res_product_id(product_id, df):
 
 
 if __name__ == "__main__":
-    df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv")
+    df= load_table_to_df()
 
-    
+
 
     # product_example = df.iloc[50]
     # product_example= product_example.to_frame().T
