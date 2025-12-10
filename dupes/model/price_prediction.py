@@ -4,35 +4,36 @@ import matplotlib.pyplot as plt
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 
-def preprocess_data(df: pd.DataFrame, predict_prepro=False):
+def preprocess_data(df: pd.DataFrame):
 
     # Create target data frame
-    cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
+    cols_to_keep = ['price_eur', 'volume_ml', 'ingredients_raw']
+    #new version: cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
+
     df_new = df[cols_to_keep]
     df_new = df_new.dropna()
     df_new['ingredients_raw'] = df_new['ingredients_raw'].str.replace('[','')
-    df_new['manufacturer_name'] = df_new['manufacturer_name'].astype("category")
+    #new version: df_new['manufacturer_name'] = df_new['manufacturer_name'].astype("category")
+
+    split_ingr_threshold = 40
+    # note: from ingredient 40 onwards, we have a significant amount of missing values
 
     # Create ingredient features with preserved order
     df_split = df_new['ingredients_raw'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
     # Drop ingredient columns with too many missing values
-    # note: from ingredient 40 onwards, we have a significant amount of missing values
     num_ingr = len(df_split.columns)
-    for index in range(40,num_ingr):
+    for index in range(split_ingr_threshold,num_ingr):
         df_split = df_split.drop(columns=index)
 
-    df_split.columns = [f'_{col}' if type(col) == int  else col for col in df_split.columns]
+    df_split.columns = [f'_{col}' if type(col) == int else col for col in df_split.columns]
 
     df_split = df_split.select_dtypes('object').astype('category')
 
     # Concatenate once more
     df_new = df_new.drop(columns='ingredients_raw')
     df_new = pd.concat([df_new,df_split], axis=1)
-
-    # Drop propriedad columnn
-    df_new = df_new.drop(columns='propiedad')
 
     return df_new
 
@@ -74,20 +75,22 @@ def preprocess_prediction_input(df: pd.DataFrame):
 
     # Wrangle prediction input in the same way as the training data
     df['ingredients_raw'] = df['ingredients_raw'].str.replace('[','')
-    df['manufacturer_name'] = df['manufacturer_name'].astype("category")
+    #new version: df['manufacturer_name'] = df['manufacturer_name'].astype("category")
 
     # Create ingredient features with preserved order
     df_split = df['ingredients_raw'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
-    # Fix: add empty columns until ingredient with index 40 (including)
+    # Fix: add empty columns until split_ingr_threshold
+    # note: from ingredient 40 onwards, we have a significant amount of missing values
+    split_ingr_threshold = 40
     num_ingr = len(df_split.columns)
 
-    if num_ingr <=40:
-        for i in range(num_ingr, 40):
+    if num_ingr <=split_ingr_threshold:
+        for i in range(num_ingr, split_ingr_threshold):
             df_split[i] = ' '
 
-    for index in range(40,num_ingr):
+    for index in range(split_ingr_threshold,num_ingr):
         df_split = df_split.drop(columns=index)
 
     df_split.columns = [f'_{col}' if type(col) == int  else col for col in df_split.columns]
@@ -97,9 +100,6 @@ def preprocess_prediction_input(df: pd.DataFrame):
     df = df.drop(columns='ingredients_raw')
     df = pd.concat([df,df_split], axis=1)
 
-    # Drop propriedad columnn
-    df = df.drop(columns='propiedad')
-
     return df
 
 if __name__ == '__main__':
@@ -108,7 +108,6 @@ if __name__ == '__main__':
     file = '/Users/panamas/code/marili/dupes/raw_data/products_clean_ingredients_rank_2.csv'
     df = pd.read_csv(file)
     preprocess = preprocess_data(df)
-
     model = train_model(preprocess)
 
     # Retrieve performance metrics

@@ -142,7 +142,8 @@ def main_res_product_id(product_id, df):
 
 if __name__ == "__main__":
     df= pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv")
-    df= df.dropna(subset=["formula"], axis=0)
+
+    
 
     # product_example = df.iloc[50]
     # product_example= product_example.to_frame().T
