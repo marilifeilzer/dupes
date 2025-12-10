@@ -60,7 +60,7 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
 
 
 REQUIRED_GCS_ENV_VARS = [
-    "GCP_PROJECT_ID",
+    "GCP_PROJECT",
     "GCS_BUCKET_MODELS",
 ]
 
@@ -74,7 +74,7 @@ def _ensure_gcs_env() -> tuple[str, str, str | None]:
     if missing:
         raise ValueError(f"Missing required env vars for GCS: {', '.join(missing)}")
 
-    project_id = os.getenv("GCP_PROJECT_ID")
+    project_id = os.getenv("GCP_PROJECT")
     bucket_name = os.getenv("GCS_BUCKET_MODELS")
     prefix_raw = os.getenv("GCS_MODELS_PREFIX", "").rstrip("/")
     breakpoint()

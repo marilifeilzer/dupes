@@ -3,9 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 tqdm.pandas()
-df = pd.read_csv("/Users/jonamoram/code/marilifeilzer/dupes/raw_data/data_0812.csv")
 
-descriptions_df = df[["product_id","description"]]
 
 API_KEY_OPENAI= os.getenv('API_KEY_OPENAI')
 client = OpenAI(
@@ -21,6 +19,8 @@ def translator(text:str):
             ).output_text
 
 
+df = pd.read_csv("/Users/jonamoram/code/marilifeilzer/dupes/raw_data/data_0812.csv")
+descriptions_df = df[["product_id","description"]]
 descriptions_df["en_description"] = descriptions_df["description"].progress_apply(lambda text: translator(text))
 
 translated_df = descriptions_df.drop(columns=["description"])

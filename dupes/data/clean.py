@@ -66,13 +66,13 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
 
 
 
-if __name__ == "__main__":
-    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/data_0812 (1).csv')
-    df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_dict.csv')
-    result = retrieve_formula_ingredients(df_keys=df_keys, df=df, col="ingredients_text")
-    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv"
+# if __name__ == "__main__":
+#     df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/data_0812 (1).csv')
+#     df_keys= pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_dict.csv')
+#     result = retrieve_formula_ingredients(df_keys=df_keys, df=df, col="ingredients_text")
+#     output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_cleaned.csv"
 
-    result.to_csv(output_path, index=False)
+#     result.to_csv(output_path, index=False)
 
-    print(result)
-    print(f"Saved to: {output_path}")
+#     print(result)
+#     print(f"Saved to: {output_path}")
