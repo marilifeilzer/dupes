@@ -1,12 +1,9 @@
 import streamlit as st
 from streamlit_navigation_bar import st_navbar
 from streamlit_card import card
+import requests
 
 import streamlit as st
-
-
-
-
 
 with st.container():
     nlp_text = st.text_input("Tell us what hair goals you have and we’ll find affordable, high-quality shampoo matches.",\
