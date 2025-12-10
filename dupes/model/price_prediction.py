@@ -7,19 +7,19 @@ from sklearn.model_selection import train_test_split
 def preprocess_data(df: pd.DataFrame):
 
     # Create target data frame
-    cols_to_keep = ['price_eur', 'volume_ml', 'ingredients_raw']
-    #new version: cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'ingredients_raw', 'manufacturer_name']
+    cols_to_keep = ['price_eur', 'volume_ml', 'formula']
+    #new version: cols_to_keep = ['price_eur', 'volume_ml', 'propiedad', 'formula', 'manufacturer_name']
 
     df_new = df[cols_to_keep]
     df_new = df_new.dropna()
-    df_new['ingredients_raw'] = df_new['ingredients_raw'].str.replace('[','')
+    df_new['formula'] = df_new['formula'].str.replace('[','')
     #new version: df_new['manufacturer_name'] = df_new['manufacturer_name'].astype("category")
 
-    split_ingr_threshold = 40
-    # note: from ingredient 40 onwards, we have a significant amount of missing values
+    split_ingr_threshold = 50
+    # note: from ingredient 50 onwards, we have a significant amount of missing values
 
     # Create ingredient features with preserved order
-    df_split = df_new['ingredients_raw'].str.split(",", expand=True)
+    df_split = df_new['formula'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
     # Drop ingredient columns with too many missing values
@@ -32,7 +32,7 @@ def preprocess_data(df: pd.DataFrame):
     df_split = df_split.select_dtypes('object').astype('category')
 
     # Concatenate once more
-    df_new = df_new.drop(columns='ingredients_raw')
+    df_new = df_new.drop(columns='formula')
     df_new = pd.concat([df_new,df_split], axis=1)
 
     return df_new
@@ -74,16 +74,16 @@ def train_model(df: pd.DataFrame):
 def preprocess_prediction_input(df: pd.DataFrame):
 
     # Wrangle prediction input in the same way as the training data
-    df['ingredients_raw'] = df['ingredients_raw'].str.replace('[','')
+    df['formula'] = df['formula'].str.replace('[','')
     #new version: df['manufacturer_name'] = df['manufacturer_name'].astype("category")
 
     # Create ingredient features with preserved order
-    df_split = df['ingredients_raw'].str.split(",", expand=True)
+    df_split = df['formula'].str.split(",", expand=True)
     df_split = df_split.replace('[','')
 
     # Fix: add empty columns until split_ingr_threshold
-    # note: from ingredient 40 onwards, we have a significant amount of missing values
-    split_ingr_threshold = 40
+    # note: from ingredient 50 onwards, we have a significant amount of missing values
+    split_ingr_threshold = 50
     num_ingr = len(df_split.columns)
 
     if num_ingr <=split_ingr_threshold:
@@ -97,7 +97,7 @@ def preprocess_prediction_input(df: pd.DataFrame):
     df_split = df_split.select_dtypes('object').astype('category')
 
     # Concatenate once more
-    df = df.drop(columns='ingredients_raw')
+    df = df.drop(columns='formula')
     df = pd.concat([df,df_split], axis=1)
 
     return df

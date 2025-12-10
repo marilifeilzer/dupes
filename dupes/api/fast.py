@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 import pandas as pd
+
 from dupes.logic import predict_shampoo
 from dupes.model.descriptions_chromadb import embedding_description_query_chromadb, embedding_description_get_recommendation
-from dupes.model.model_chromadb import main_results
 from dupes.model.optimiser import load_model
 from dupes.model.price_prediction import preprocess_prediction_input
 from dupes.model.model_chromadb import main_results, main_res_product_id
@@ -10,10 +10,9 @@ from dupes.model.model_chromadb import main_results, main_res_product_id
 app = FastAPI()
 app.state.model = load_model()
 
-embedding_description_get_recommendation()
 @app.get("/predict_price")
-def get_price_prediction(volume_ml: int  = 350.0,
-                         ingredients_raw: str = "Water, Cetearyl Alcohol, PPG-3 Benzyl Ether Myristate, Caprylic/Capric Triglyceride, Cetyl Alcohol,Octyldodecyl Ricinoleate, Quaternium-91, Cetrimonium Chloride, Divinyldimethicone/Dimethicone Copolymer, Behentrimonium Chloride, Glycerin, Cetyl Esters, Isododecane, Bis-Aminopropyl Diglycol Dimaleate, Fragrance, Panthenol, Phospholipids, Dimethicone PEG-7 Isostearate, Pseudozyma Epicola/Argania Spinosa Kernel Oil Ferment Filtrate, Pseudozyma Epicola/Camellia Sinensis Seed Oil Ferment Extract Filtrate, Tocopheryl Linoleate/Oleate, Quaternium-95, Propanediol, Punica Granatum Extract, Morinda Citrifolia Fruit Extract, PEG-8, Euterpe Oleracea Fruit Extract, Camellia Sinensis Seed Oil, Crambe Abyssinica Seed Oil, Hydroxypropyl Cyclodextrin, Persea Gratissima (Avocado) Oil, Vitis Vinifera (Grape) Seed Oil, Disodium EDTA, Polysilicone-15, C11-15 Pareth-7, Hydroxypropyl Guar, Glycine Soja (Soybean) Oil, PEG-45M, PEG-7 Amodimethicone, Amodimethicone, C12-13 Pareth-23, C12-13 Pareth-3, Laureth-9, Pentaerythrityl Tetra-Di-T-Butyl Hydroxyhydrocinnamate, PEG-4, Phenoxyethanol, Hexyl Cinnamal"
+def get_price_prediction(volume_ml: int  = 236.0,
+                         formula: str = "['H2O', 'C14H27NaO5S', 'Cocamidopropyl hydroxysultaine', 'Cocoyl methyl taurate sodium salt', 'C16H32O6', 'C16H34O or C18H38O', 'C11H22O4', 'C10H20O2', 'C16H34O', 'C34H68O2', 'C', 'C5H11NO2', 'C17H33NO4Na', 'C9H9NNa4O8', 'C16H14N2O3', 'C8H7NaO3S', 'C21H42O6', 'C21H42O4', 'C38H74O4', 'C18H36O2', 'C21H45KO4P', 'C3H8O3', 'C58H118O21', 'C18H37COO(PEG)75', 'C16H34O2', 'C18H37(OCH2CH2)20OH', 'C10-30 Alkyl Acrylate Crosspolymer', 'NaOH', 'C3H8O2', 'C11H24O3', 'C8H8O2', 'C10H18O', 'C15H20O2', 'C10H20O', 'C10H16']"
                          ):
 
     # Create dataframe with the input variables for the prediction
@@ -33,7 +32,7 @@ def get_price_prediction(volume_ml: int  = 350.0,
 
 
 embedding_description_get_recommendation()
-df = pd.read_csv("/Users/lewagon/code/marilifeilzer/dupes/raw_data/products_data__0412.csv")
+df = pd.read_csv("/Users/panamas/code/marili/dupes/raw_data/products_data_1012.csv")
 
 @app.get("/")
 def index():
@@ -46,8 +45,7 @@ def get_recommendation(description: str):
 
     return recommendation
 
-df_cleaned= pd.read_csv('/home/panamas/code/marili/dupes/raw_data/products_cleaned.csv')
-dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
+
 
 @app.get("/recommend_ingredients")
 def get_recommendation_ingredients(
@@ -57,6 +55,8 @@ def get_recommendation_ingredients(
     tipo_de_cabello: str = "Todo tipo de cabello",
     propiedad: str = "Detergente" ,
 ):
+    df_cleaned= pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_clean_600_ingredients.csv')
+    dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
     product = pd.DataFrame({
         # "product_id": [product_id],
@@ -86,6 +86,8 @@ def get_recommendation_ingredients(
 def get_recommendation_ingredients(
     product_id: str
 ):
+    df_cleaned= pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_clean_600_ingredients.csv')
+    dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
     results= main_res_product_id(product_id, dropped)
 
