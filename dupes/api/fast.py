@@ -13,6 +13,7 @@ app.state.model = load_model()
 
 df= load_table_to_df()
 
+
 @app.get("/predict_price")
 def get_price_prediction(volume_ml: int  = 350.0,
                          ingredients_raw: str = "Water, Cetearyl Alcohol, PPG-3 Benzyl Ether Myristate, Caprylic/Capric Triglyceride, Cetyl Alcohol,Octyldodecyl Ricinoleate, Quaternium-91, Cetrimonium Chloride, Divinyldimethicone/Dimethicone Copolymer, Behentrimonium Chloride, Glycerin, Cetyl Esters, Isododecane, Bis-Aminopropyl Diglycol Dimaleate, Fragrance, Panthenol, Phospholipids, Dimethicone PEG-7 Isostearate, Pseudozyma Epicola/Argania Spinosa Kernel Oil Ferment Filtrate, Pseudozyma Epicola/Camellia Sinensis Seed Oil Ferment Extract Filtrate, Tocopheryl Linoleate/Oleate, Quaternium-95, Propanediol, Punica Granatum Extract, Morinda Citrifolia Fruit Extract, PEG-8, Euterpe Oleracea Fruit Extract, Camellia Sinensis Seed Oil, Crambe Abyssinica Seed Oil, Hydroxypropyl Cyclodextrin, Persea Gratissima (Avocado) Oil, Vitis Vinifera (Grape) Seed Oil, Disodium EDTA, Polysilicone-15, C11-15 Pareth-7, Hydroxypropyl Guar, Glycine Soja (Soybean) Oil, PEG-45M, PEG-7 Amodimethicone, Amodimethicone, C12-13 Pareth-23, C12-13 Pareth-3, Laureth-9, Pentaerythrityl Tetra-Di-T-Butyl Hydroxyhydrocinnamate, PEG-4, Phenoxyethanol, Hexyl Cinnamal"
@@ -86,12 +87,13 @@ def get_recommendation_ingredients(
 def get_recommendation_ingredients(
     product_id: str
 ):
+    df= load_table_to_df()
 
+    dropped =  df.dropna(subset=["formula"], axis=0)
     results= main_res_product_id(product_id, dropped)
 
     product_ids= results['ids'][0]
-    dropped =  df.dropna(subset=["formula"], axis=0)
 
-    df = dropped.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
+    df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-    return {"prodcut_names":df.fillna("No data").to_dict(orient="records")}
+    return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
