@@ -43,7 +43,7 @@ def _extract_chroma(archive_path: Path, dest_dir: Path) -> None:
 def ensure_ingredients_artifacts() -> None:
     _ensure_dirs()
 
-    # Check if files doesn't exist locally, if not downloads them
+    # Check if files exist locally, if not downloads them
     if not MLB_PATH.is_file():
         download_model(GCS_MLB_BLOB, MLB_PATH)
 

@@ -3,6 +3,7 @@ import pandas as pd
 
 from dupes.logic import predict_shampoo
 from dupes.model.descriptions_chromadb import (
+    ensure_description_artifacts,
     embedding_description_get_recommendation,
     embedding_description_query_chromadb,
 )
@@ -15,6 +16,7 @@ app = FastAPI()
 app.state.model = load_model()
 
 ensure_ingredients_artifacts()
+ensure_description_artifacts()
 embedding_description_get_recommendation()
 df= load_table_to_df()
 
