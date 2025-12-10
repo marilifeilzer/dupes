@@ -58,7 +58,6 @@ def retrieve_formula_ingredients(df_keys: pd.DataFrame, df: pd.DataFrame, col="i
         else [item for item in x if item is not None] if isinstance(x, list) else x
     )
     )
-    breakpoint()
     df.example = df.formula.apply(lambda x: f"{x}")
     # df.rename(columns= {'formula': 'formula'}, inplace=True)
 

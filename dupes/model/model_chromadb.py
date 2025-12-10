@@ -134,6 +134,7 @@ def main_results(product):
     return results
 
 def main_res_product_id(product_id, df):
+    breakpoint()
     collection = chroma_client.get_collection(name="ingredients_embed_v2")
     product = df.loc[df['product_id'] == product_id]
     embed_ex= embedding_ingredients(product, True)

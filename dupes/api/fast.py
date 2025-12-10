@@ -68,6 +68,30 @@ def get_recommendation(description: str):
 
     return recommendation
 
+@app.get("/dupe_with_price")
+def get_dupe_with_price(product_id: str):
+    
+    price_model = app.state.model
+
+    df= load_table_to_df()
+
+    dropped =  df.dropna(subset=["formula"], axis=0)
+    results= main_res_product_id(product_id, dropped)
+
+    product_ids= results['ids'][0][1:]
+
+    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "description", "formula", "volume_ml"]] for product in product_ids]
+
+
+    predict_price_df = df.loc[df.product_name.isin(product_names)][["volume_ml", "formula"]]
+    predict_price_df["volume_ml"] =  predict_price_df["volume_ml"].astype(float)
+
+    preproc = preprocess_prediction_input(predict_price_df)
+    pred_price_ml = price_model.predict(preproc).tolist()
+    predict_price_df["ml_prediction"] = pred_price_ml
+    predict_price_df["price_prediction"] = predict_price_df["ml_prediction"] * predict_price_df["volume_ml"]
+    return {"prediction": predict_price_df.to_dict(orient="records")}
+
 
 
 
@@ -114,13 +138,13 @@ def get_recommendation_ingredients(
 ):
     df= load_table_to_df()
 
+
     dropped =  df.dropna(subset=["formula"], axis=0)
     results= main_res_product_id(product_id, dropped)
 
     product_ids= results['ids'][0][1:]
 
 
-    #breakpoint()
     #df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
 
