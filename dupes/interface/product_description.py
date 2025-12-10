@@ -26,7 +26,7 @@ if nlp_text:
     predictions = response.json()
 
     st.markdown("""
-                ## No ads. No sponsored brands. Just unbiased recommendations.
+                ### No ads. No sponsored brands. Just unbiased recommendations.
                 """)
 
     for prediction in predictions:
@@ -34,7 +34,7 @@ if nlp_text:
 
 
             with st.container(border= True):
-                st.title(f"# {list(prediction["product_name"].values())[0]}")
+                st.title(f"{list(prediction["product_name"].values())[0]}")
                 st.caption(f"{list(prediction["en_description"].values())[0]}")
                 st.caption(f"Actual price in stores: €{list(prediction["price_eur"].values())[0]}")
                 st.caption(f"The price we think its fair: €")
