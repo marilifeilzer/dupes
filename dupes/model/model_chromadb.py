@@ -22,7 +22,7 @@ CHROMA_ARCHIVE = INGR_DIR / "chroma.tar.gz"
 GCS_MLB_BLOB = os.getenv("INGREDIENTS_MLB_BLOB", "ingredients/mlb.pkl")
 GCS_CHROMA_BLOB = os.getenv("INGREDIENTS_CHROMA_BLOB", "ingredients/chroma.tar.gz")
 
-
+# Checks for directories and internal paths
 def _ensure_dirs() -> None:
     INGR_DIR.mkdir(parents=True, exist_ok=True)
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
@@ -39,11 +39,10 @@ def _extract_chroma(archive_path: Path, dest_dir: Path) -> None:
     with tarfile.open(archive_path, "r:gz") as tar:
         tar.extractall(dest_dir)
 
-
+# Check if files exist locally, if not downloads them
 def ensure_ingredients_artifacts() -> None:
     _ensure_dirs()
 
-    # Check if files exist locally, if not downloads them
     if not MLB_PATH.is_file():
         download_model(GCS_MLB_BLOB, MLB_PATH)
 
