@@ -1,0 +1,11 @@
+[theme]
+base="light"
+backgroundColor="ghostWhite"
+secondaryBackgroundColor="lavender"
+codeBackgroundColor="powderBlue"
+textColor="#7c7aac"
+font="futura"
+
+[theme.sidebar]
+backgroundColor="ghostWhite"
+secondaryBackgroundColor="#d3d1ff"
