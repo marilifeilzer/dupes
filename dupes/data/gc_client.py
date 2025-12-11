@@ -77,7 +77,6 @@ def _ensure_gcs_env() -> tuple[str, str, str | None]:
     project_id = os.getenv("GCP_PROJECT")
     bucket_name = os.getenv("GCS_BUCKET_MODELS")
     prefix_raw = os.getenv("GCS_MODELS_PREFIX", "").rstrip("/")
-    breakpoint()
     prefix = prefix_raw or None
     return project_id, bucket_name, prefix
 

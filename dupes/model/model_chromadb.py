@@ -12,7 +12,7 @@ import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
-from dupes.data.gc_client import download_model, 
+from dupes.data.gc_client import download_model
 from dupes.data.properties import encode_properties, use_encoder_load
 
 # Common instances
@@ -135,7 +135,7 @@ def embedding_description_query_filtering_chromadb(collection, query, n_results,
     query_embedding = MODEL.encode(query)
 
     results = collection.query(
-        query_embeddings=[query_embedding], n_results=n_results, where=where
+        query_embeddings=[query_embedding], n_results=n_results, where=where)
 
 def embedding_ingredients_get_data(df: pd.DataFrame):
     dropped = df[['product_id', 'formula']]
