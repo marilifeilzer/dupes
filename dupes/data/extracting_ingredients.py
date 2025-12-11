@@ -132,15 +132,15 @@ def require_element_name(names: list):
 
     return df
 
-# if __name__ == "__main__":
-#     df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/raw_data/products_raw_500.csv')
+if __name__ == "__main__":
+    df = pd.read_csv('/home/marili/code/marilifeilzer/dupes/notebook/data_0912.csv')
 
 #     names = getting_distribution_ingredients(df)
 #     result = require_element_name(names=names)
 
-#     # Save result to raw data folder
-#     output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_data_V2.csv"
-#     result.to_csv(output_path, index=False)
+    # Save result to raw data folder
+    output_path = "/home/marili/code/marilifeilzer/dupes/raw_data/products_data.csv"
+    result.to_csv(output_path, index=False)
 
 #     print(result)
 #     print(f"Saved to: {output_path}")
