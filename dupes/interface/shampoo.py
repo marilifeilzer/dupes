@@ -23,14 +23,15 @@ if shampoo_input:
 
     # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api = "http://127.0.0.1:8000/recommend_dupe"
+    dupes_web_api = "http://127.0.0.1:8000/dupe_with_price"
     response = requests.get(dupes_web_api,params=params)
 
     predictions = response.json()
 
-    for prediction in predictions:
+
+    for prediction in predictions['predictions']:
 
         with st.container(border= True):
             st.title(f"{prediction["product_name"]}")
-            st.caption(f"{prediction["en_description"]}")
             st.caption(f"Actual price in stores: €{prediction["price_eur"]}")
+            st.caption(f"Actual price in stores: €{prediction["price_prediction"]} per {prediction["volume_ml"]} ml.")
