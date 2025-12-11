@@ -1,7 +1,9 @@
+import pickle
+from pathlib import Path
+
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
-import pickle
 
 def clean_categories(dataframe):
 
@@ -26,7 +28,10 @@ def clean_categories(dataframe):
     return dupes_df[["product_id","propiedad"]]
 
 
-def encode_properties(dataframe, col):
+def encode_properties(dataframe, col, encoder_path: str | Path | None = None):
+
+    encoder_path = Path(encoder_path) if encoder_path else Path("model.pkl")
+    encoder_path.parent.mkdir(parents=True, exist_ok=True)
 
     mlb = MultiLabelBinarizer()
 
@@ -38,14 +43,16 @@ def encode_properties(dataframe, col):
                  )
 
     # save
-    with open('model.pkl','wb') as f:
+    with open(encoder_path,'wb') as f:
         pickle.dump(mlb,f)
 
     return pd.concat([dataframe[["product_id"]],mlb_df], axis=1)
 
-def use_encoder_load(dataframe, col):
+def use_encoder_load(dataframe, col, encoder_path: str | Path | None = None):
 
-    with open('model.pkl', 'rb') as f:
+    encoder_path = Path(encoder_path) if encoder_path else Path("model.pkl")
+
+    with open(encoder_path, 'rb') as f:
         mlb = pickle.load(f)
 
     mlb_df = pd.DataFrame(mlb.transform(dataframe[col]), #changed fit and transform to transform, error gone

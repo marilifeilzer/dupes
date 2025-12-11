@@ -5,6 +5,53 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 from dupes.data.gc_client import load_table_to_df
 
+import os
+import pickle
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from xgboost import XGBRegressor
+
+from dupes.data.gc_client import download_model, load_table_to_df, upload_model
+
+CACHE_ROOT = Path(os.getenv("MODELS_CACHE_DIR", "models_cache"))
+PRICE_DIR = CACHE_ROOT / "price"
+MODEL_PATH = PRICE_DIR / "xgb_best.pkl"
+GCS_PRICE_BLOB = os.getenv("PRICE_MODEL_BLOB", "price/xgb_best.pkl")
+
+def _ensure_dirs() -> None:
+    PRICE_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def ensure_price_model() -> Path:
+    """
+    Ensure the price model exists locally, downloading it from GCS if not.
+    """
+    _ensure_dirs()
+    if not MODEL_PATH.is_file():
+        download_model(GCS_PRICE_BLOB, MODEL_PATH)
+    return MODEL_PATH
+
+
+def save_price_model(model) -> Path:
+    """
+    Persist the trained model locally and upload it to GCS.
+    """
+    _ensure_dirs()
+    with open(MODEL_PATH, "wb") as f:
+        pickle.dump(model, f)
+    upload_model(MODEL_PATH, GCS_PRICE_BLOB)
+    return MODEL_PATH
+
+
+def load_price_model():
+    path = ensure_price_model()
+    with open(path, "rb") as f:
+        return pickle.load(f)
+
 def preprocess_data(df: pd.DataFrame, manufacturer = False):
 
     # Create data frame
@@ -120,6 +167,7 @@ if __name__ == '__main__':
     df = load_table_to_df()
     preprocess = preprocess_data(df)
     model = train_model(preprocess)
+    save_price_model(model)
 
     # Retrieve performance metrics
     results = model.evals_result()
