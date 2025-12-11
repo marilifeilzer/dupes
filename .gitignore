@@ -4,8 +4,11 @@ __pycache__/
 *$py.class
 *.ipynb
 # C extensions
+*.pkl
+*.json
 *.so
 gcp/
+models_cache/
 # Distribution / packaging
 .Python
 build/

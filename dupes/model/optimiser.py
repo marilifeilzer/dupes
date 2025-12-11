@@ -96,12 +96,4 @@ if __name__ == "__main__":
     best_model = model_xgb.fit(X, target)
 
     print("...writing to pickle file...")
-    save_price_model(best_model)
-
-    if manufacturer:
-        file_name = "xgb_best_manu.pkl"
-    else:
-        file_name = "xgb_best.pkl"
-
-    print("...writing to pickle file...")
-    pickle.dump(best_model, open(file_name, "wb"))
+    save_price_model(best_model, manufacturer=manufacturer)

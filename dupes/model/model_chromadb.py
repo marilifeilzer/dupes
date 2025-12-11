@@ -20,14 +20,15 @@ chroma_client = chromadb.PersistentClient(path="raw_data/")
 
 MODEL = SentenceTransformer("all-mpnet-base-v2")
 
-CACHE_ROOT = Path(os.getenv("MODELS_CACHE_DIR", "models_cache"))
-INGR_DIR = CACHE_ROOT / "ingredients"
-MLB_PATH = INGR_DIR / "mlb.pkl"
-CHROMA_DIR = INGR_DIR / "chroma"
-CHROMA_ARCHIVE = INGR_DIR / "chroma.tar.gz"
-
-GCS_MLB_BLOB = os.getenv("INGREDIENTS_MLB_BLOB", "ingredients/mlb.pkl")
-GCS_CHROMA_BLOB = os.getenv("INGREDIENTS_CHROMA_BLOB", "ingredients/chroma.tar.gz")
+# Import centralized paths
+from dupes.model.model_paths import (
+    MLB_INGREDIENTS_PATH as MLB_PATH,
+    CHROMA_INGREDIENTS_DIR as CHROMA_DIR,
+    CHROMA_INGREDIENTS_ARCHIVE as CHROMA_ARCHIVE,
+    INGREDIENTS_DIR as INGR_DIR,
+    GCS_MLB_BLOB,
+    GCS_CHROMA_INGREDIENTS_BLOB as GCS_CHROMA_BLOB
+)
 
 # Checks for directories and internal paths
 def _ensure_dirs() -> None:

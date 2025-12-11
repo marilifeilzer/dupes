@@ -20,13 +20,14 @@ from dupes.model.price_prediction import (
     save_price_model,
     train_model,
 )
+from dupes.model.model_paths import PRICE_MODEL_BASE
 
 
 def _artifacts_present() -> bool:
     ingredients_ready = ingr.MLB_PATH.is_file() and (ingr.CHROMA_DIR / "chroma.sqlite3").is_file()
     descriptions_ready = (desc.CHROMA_DIR / "chroma.sqlite3").is_file()
-    price_ready = Path(os.getenv("MODELS_CACHE_DIR", "models_cache")) / "price" / "xgb_best.pkl"
-    return ingredients_ready and descriptions_ready and price_ready.is_file()
+    price_ready = PRICE_MODEL_BASE.is_file()
+    return ingredients_ready and descriptions_ready and price_ready
 
 
 def main() -> None:
