@@ -60,17 +60,12 @@ def objective(trial):
     return score
 
 
-# Load pickle with fitted model
 def load_model_base(manufacturer=False):
-
-    return load_price_model(manufacturer=False)
+    return load_price_model(manufacturer)
 
 
 if __name__ == "__main__":
-
-    # Put this flag to True or False to include/exclude the name of the brand as a feature
     manufacturer = True
-
     preprocess = preprocess_data(df, manufacturer)
     target = preprocess["price_eur"] / preprocess["volume_ml"]
     X = preprocess.drop(columns=["price_eur"])
