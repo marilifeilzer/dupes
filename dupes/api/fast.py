@@ -54,7 +54,7 @@ def get_price_prediction(
 def get_recommendation(description: str):
 
     price_model = app.state.model_base
-    breakpoint()
+
 
     recommendation = embedding_description_query_chromadb(description)
     if len(recommendation) > 0:
