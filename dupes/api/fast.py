@@ -2,38 +2,46 @@ from fastapi import FastAPI
 import pandas as pd
 
 from dupes.logic import predict_shampoo
-from dupes.model.descriptions_chromadb import (
-    embedding_description_query_chromadb,
-    embedding_description_get_recommendation,
-)
-from dupes.model.optimiser import load_model
+from dupes.model.descriptions_chromadb import embedding_description_query_chromadb, embedding_description_get_recommendation
+from dupes.model.price_prediction_oof import load_model_meta
+from dupes.model.optimiser import load_model_base
 from dupes.model.price_prediction import preprocess_prediction_input
 from dupes.model.model_chromadb import main_results, main_res_product_id
 from dupes.data.gc_client import load_table_to_df
 from dupes.data.properties import encode_properties
 
 app = FastAPI()
-app.state.model = load_model()
+app.state.model_meta = load_model_meta(manufacturer=True)
+app.state.model_base = load_model_base(manufacturer=True)
 
 df = load_table_to_df()
 
 
 @app.get("/predict_price")
-def get_price_prediction(
-    volume_ml: int = 236.0,
-    formula: str = "['H2O', 'C14H27NaO5S', 'Cocamidopropyl hydroxysultaine', 'Cocoyl methyl taurate sodium salt', 'C16H32O6', 'C16H34O or C18H38O', 'C11H22O4', 'C10H20O2', 'C16H34O', 'C34H68O2', 'C', 'C5H11NO2', 'C17H33NO4Na', 'C9H9NNa4O8', 'C16H14N2O3', 'C8H7NaO3S', 'C21H42O6', 'C21H42O4', 'C38H74O4', 'C18H36O2', 'C21H45KO4P', 'C3H8O3', 'C58H118O21', 'C18H37COO(PEG)75', 'C16H34O2', 'C18H37(OCH2CH2)20OH', 'C10-30 Alkyl Acrylate Crosspolymer', 'NaOH', 'C3H8O2', 'C11H24O3', 'C8H8O2', 'C10H18O', 'C15H20O2', 'C10H20O', 'C10H16']",
-):
+def get_price_prediction(volume_ml: int  = 450,
+                         manufacturer_name: str = 'Beautyge',
+                         formula: str = "['H2O', 'Cocamidopropyl hydroxysultaine', 'C12H21Na2O7S', 'C19H38N2O3', 'C15H28NNaO3', 'Acrylates copolymer', 'C14H27NaO5S', 'C16H32O6', 'Cocoamphodiacetate, disodium salt', 'C12H20O7', 'C8H10O', 'C21H40O4', 'C3H8O3', 'C6H8O7', 'C9H19NO4', 'NaOH', 'NaCl', 'C9H9NNa4O8', 'C3H8O2', 'C7H5NaO2', 'C10H21ClN2O2', 'C6H7KO2', 'C8H10O2', 'C30H62', 'C10H18O', 'C10H16']"
+                         ):
 
     input = pd.DataFrame(locals(), index=[0])
 
-    preproc = preprocess_prediction_input(input)
+    # Preprocess it the same way as our training data
+    preproc = preprocess_prediction_input(input, manufacturer=True)
 
-    model = app.state.model
+    # Load the fitted base model
+    base_model = app.state.model_base
 
-    pred_price_ml = model.predict(preproc).tolist()
-    pred_price = pred_price_ml[0] * volume_ml
+    # Make the prediction
+    base_pred_price_ml = base_model.predict(preproc)
 
-    return {"prediction": round(pred_price, 2)}
+    # Load the fitted meta model
+    meta_model = app.state.model_meta
+
+    # Make the prediction
+    meta_pred_price_ml = meta_model.predict(base_pred_price_ml).tolist()
+    meta_pred_price = meta_pred_price_ml[0] * volume_ml
+
+    return {'prediction': round(meta_pred_price, 2)}
 
 
 @app.get("/")

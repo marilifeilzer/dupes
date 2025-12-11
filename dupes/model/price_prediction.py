@@ -125,7 +125,7 @@ def train_model(df: pd.DataFrame):
 def preprocess_prediction_input(df: pd.DataFrame, manufacturer = False):
 
     # Create data frame
-    cols_to_keep = ['price_eur', 'volume_ml', 'formula']
+    cols_to_keep = ['volume_ml', 'formula']
     if manufacturer:
         cols_to_keep.append('manufacturer_name')
 
@@ -154,10 +154,10 @@ def preprocess_prediction_input(df: pd.DataFrame, manufacturer = False):
 
     # Concatenate once more
     df_new = df_new.drop(columns='formula')
-    df = pd.concat([df_new,df_split], axis=1)
 
     if manufacturer:
         df_new['manufacturer_name'] = df_new['manufacturer_name'].astype('category')
+    df = pd.concat([df_new,df_split], axis=1)
 
     return df
 
