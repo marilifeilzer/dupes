@@ -1,7 +1,9 @@
+import pickle
+from pathlib import Path
+
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
-import pickle
 
 
 def parse_formula(x):
@@ -75,7 +77,9 @@ def encode_properties(dataframe, col):
     return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
 
 
-def use_encoder_load(dataframe, col):
+def use_encoder_load(dataframe, col, encoder_path: str | Path | None = None):
+
+    encoder_path = Path(encoder_path) if encoder_path else Path("model.pkl")
 
     with open("model.pkl", "rb") as f:
         mlb = pickle.load(f)

@@ -1,18 +1,26 @@
-import pandas as pd
-import numpy as np
-import pickle
 import json
-from dupes.model.price_prediction import preprocess_data
-from xgboost import XGBRegressor
-import optuna
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split, cross_val_score
-from dupes.data.gc_client import load_table_to_df
+import pickle
 
-# Create data
+import numpy as np
+import optuna
+import pandas as pd
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import cross_val_score, train_test_split
+from xgboost import XGBRegressor
+
+from dupes.data.gc_client import load_table_to_df
+from dupes.model.price_prediction import (
+    load_price_model,
+    preprocess_data,
+    save_price_model,
+)
+
+
 df= load_table_to_df()
-target = df['price_eur'] / df['volume_ml']
-X = df.drop(columns=['price_eur'])
+
+preprocess = preprocess_data(df)
+target = preprocess['price_eur'] / preprocess['volume_ml']
+X = preprocess.drop(columns=['price_eur'])
 
 # Optimise the model with hyper parameter tuning
 def objective(trial):
@@ -49,15 +57,9 @@ def objective(trial):
     return score
 
 # Load pickle with fitted model
-def load_model(manufacturer = False):
+def load_model():
 
-    if manufacturer:
-        file_name = "xgb_best_manu.pkl"
-    else:
-        file_name = "xgb_best.pkl"
-    loaded_model = pickle.load(open(file_name, "rb"))
-
-    return loaded_model
+    return load_price_model()
 
 
 if __name__ == '__main__':
@@ -92,6 +94,9 @@ if __name__ == '__main__':
                              nthread = -1)
     best_model = model_xgb.fit(X, target)
 
+    print('...writing to pickle file...')
+    save_price_model(best_model)
+    
     if manufacturer:
         file_name = "xgb_best_manu.pkl"
     else:
