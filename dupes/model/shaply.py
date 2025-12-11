@@ -47,7 +47,7 @@ def get_global_shaply_values(df: pd.DataFrame, manufacturer = True):
     X = preprocess.drop(columns=['price_eur'])
     mean_volume = np.mean(X['volume_ml'])
 
-    model = load_model(manufacturer=manufacturer)
+    model = load_model_base(manufacturer=manufacturer)
 
     # Calculate Shaply values
     explainer = shap.Explainer(model)
