@@ -1,7 +1,7 @@
 import shap
 import numpy as np
 import pandas as pd
-from dupes.model.optimiser import load_model
+from dupes.model.optimiser import load_model_base
 from dupes.model.price_prediction import preprocess_data, preprocess_prediction_input, train_model
 shap.initjs()
 
@@ -12,7 +12,7 @@ def get_local_shaply_values(df: pd.DataFrame, index: int, manufacturer = False):
     target = df['price_eur'] / df['volume_ml']
     X = preprocess.drop(columns=['price_eur'])
 
-    model = load_model(manufacturer=manufacturer)
+    model = load_model_base(manufacturer=manufacturer)
 
     # Calculate the prediction
     feature_values = X.iloc[[index]]
