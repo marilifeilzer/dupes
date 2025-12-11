@@ -7,11 +7,14 @@ from dupes.model.optimiser import load_model
 from dupes.model.price_prediction import preprocess_prediction_input
 from dupes.model.model_chromadb import main_results, main_res_product_id
 from dupes.data.gc_client import load_table_to_df
+from dupes.data.properties import encode_properties
 
 app = FastAPI()
 app.state.model = load_model()
 
 df= load_table_to_df()
+df = pd.read_csv("/home/marili/code/marilifeilzer/dupes/raw_data/products_clean_ingredients_rank_2.csv")
+encode_properties(df, col=['formula'])
 
 @app.get("/predict_price")
 def get_price_prediction(volume_ml: int  = 236.0,
@@ -49,7 +52,9 @@ def get_recommendation(description: str):
 
 @app.get("/recommend_with_price")
 def get_recommendation(description: str):
+
     price_model = app.state.model
+
 
 
     recommendation = embedding_description_query_chromadb(description)
@@ -69,8 +74,8 @@ def get_recommendation(description: str):
     return recommendation
 
 @app.get("/dupe_with_price")
-def get_dupe_with_price(product_id: str):
-    
+def get_dupe_with_price(product_id: str=  '3001044443'):
+
     price_model = app.state.model
 
     df= load_table_to_df()

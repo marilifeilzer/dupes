@@ -52,6 +52,7 @@ def create_metadata_dictionairy_properties(df: pd.DataFrame, cols=["tipo_de_cabe
 
 def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
     # dropped= df.dropna(subset=cols, axis=0)
+    breakpoint()
     metadata_dict_encoded= []
     print(f"This is df imput of create_metadata_dict {df}")
 
@@ -134,10 +135,10 @@ def main_results(product):
     return results
 
 def main_res_product_id(product_id, df):
-    breakpoint()
     collection = chroma_client.get_collection(name="ingredients_embed_v2")
     product = df.loc[df['product_id'] == product_id]
     embed_ex= embedding_ingredients(product, True)
+    breakpoint()
     metadata_ex= create_metadata_dictionairy(product)
     results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
     return results

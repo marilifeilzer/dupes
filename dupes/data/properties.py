@@ -27,9 +27,9 @@ def clean_categories(dataframe):
 
 
 def encode_properties(dataframe, col):
-
+    breakpoint()
+    dataframe= dataframe.dropna(subset=col)
     mlb = MultiLabelBinarizer()
-
     dataframe[col] = dataframe[col].apply(lambda x: [each for each in x if type(each) == str])
 
     mlb_df = pd.DataFrame(mlb.fit_transform(dataframe[col]),
@@ -57,7 +57,7 @@ def use_encoder_load(dataframe, col):
     #     return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
 
     # else:
-    return mlb_df  
+    return mlb_df
 
 def price_and_vol_clean(data):
 
