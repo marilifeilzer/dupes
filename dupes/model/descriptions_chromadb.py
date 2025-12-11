@@ -77,7 +77,7 @@ def embedding_description_query_chromadb(query, n_results=5):
     results = results["ids"][0]
     df = load_table_to_df()
     product_names = [
-        df.loc[df["product_id"] == product, ["product_name", "price_eur", "description"]]
+        df.loc[df["product_id"] == product, ["product_name", "price_eur", "description", "volume_ml"]]
         for product in results
     ]
 
@@ -104,48 +104,20 @@ def embedding_description_get_recommendation():
 # df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
 # df_cleaned = clean_data(df)
 
-df= load_table_to_df()
+def create_description_db(df: pd.DataFrame) -> None:
+    """Create description ChromaDB collection from scratch"""
+    _ensure_dirs()
+    import shutil
+    if CHROMA_DIR.exists():
+        shutil.rmtree(CHROMA_DIR)
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Common instances
-model = SentenceTransformer("all-mpnet-base-v2")
-chroma_client = chromadb.PersistentClient(path="raw_data/")
-
-# Helper functions
-def embedding_description_get_data(df: pd.DataFrame):
-    dropped = df[['product_id', 'description']]
-    dropped = df.dropna(subset=['description'], axis=0)
-    return dropped
-
-def embedding_description_embed(dropped: pd.DataFrame):
-    embeddings = model.encode(dropped['description'].values, show_progress_bar=True)
-    return embeddings
-
-def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
-    collection = chroma_client.get_or_create_collection(name="description_embed")
-    collection.add(
-        ids=list(dropped['product_id'].values),
-        embeddings=embeddings)
-    return collection
-
-def embedding_description_query_chromadb(query, n_results=5):
-    df_cleaned = clean_data(df)
-    collection = chroma_client.get_collection(name="description_embed")
-    query_embedding = model.encode(query, show_progress_bar=False)
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results)
-
-    results = results["ids"][0]
-    df['volume_ml'] = df['volume_ml'].astype('object').fillna('no data')
-    df['price_eur'] = df['price_eur'].astype('object').fillna('no data') #  added this
-
-    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "en_description", 'volume_ml', 'formula']] for product in results]
-
-    return product_names
-
-# Main functionality
-def embedding_description_get_recommendation():
-    df_cleaned = clean_data(df)
-    dropped_desc = embedding_description_get_data(df_cleaned)
+    dropped_desc = embedding_description_get_data(df)
     embeddings_desc = embedding_description_embed(dropped_desc)
-    collection_desc = embedding_description_populate_chromadb(dropped_desc, embeddings_desc)
+
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    embedding_description_populate_chromadb(dropped_desc, embeddings_desc, client=client)
+
+    # Save the files into the bucket
+    _archive_chroma(CHROMA_DIR, CHROMA_ARCHIVE)
+    upload_model(CHROMA_ARCHIVE, GCS_CHROMA_BLOB)
