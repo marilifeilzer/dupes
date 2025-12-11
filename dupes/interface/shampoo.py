@@ -34,4 +34,4 @@ if shampoo_input:
         with st.container(border= True):
             st.title(f"{prediction["product_name"]}")
             st.caption(f"Actual price in stores: €{prediction["price_eur"]}")
-            st.caption(f"Actual price in stores: €{prediction["price_prediction"]} per {prediction["volume_ml"]} ml.")
+            st.caption(f"The price we think is fair: €{round(prediction["price_prediction"],2)} per {prediction["volume_ml"]} ml.")

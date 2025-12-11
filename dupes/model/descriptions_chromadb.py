@@ -16,6 +16,7 @@ CHROMA_DIR = DESC_DIR / "chroma"
 CHROMA_ARCHIVE = DESC_DIR / "chroma.tar.gz"
 GCS_CHROMA_BLOB = os.getenv("DESCRIPTION_CHROMA_BLOB", "descriptions/chroma.tar.gz")
 
+
 # Make sure paths exist inside container
 def _ensure_dirs() -> None:
     DESC_DIR.mkdir(parents=True, exist_ok=True)
@@ -34,9 +35,11 @@ def _extract_chroma(archive_path: Path, dest_dir: Path) -> None:
         tar.extractall(dest_dir)
 
     # Check if files exist locally, if not downloads them
+
+
 def ensure_description_artifacts() -> None:
     _ensure_dirs()
-    
+
     chroma_db_path = CHROMA_DIR / "chroma.sqlite3"
     if not chroma_db_path.is_file():
         if CHROMA_ARCHIVE.is_file():
@@ -62,7 +65,9 @@ def embedding_description_embed(dropped: pd.DataFrame):
     return embeddings
 
 
-def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings, client=None):
+def embedding_description_populate_chromadb(
+    dropped: pd.DataFrame, embeddings, client=None
+):
     client = client or _get_client()
     collection = client.get_or_create_collection(name="description_embed")
     collection.add(ids=list(dropped["product_id"].values), embeddings=embeddings)
@@ -77,7 +82,10 @@ def embedding_description_query_chromadb(query, n_results=5):
     results = results["ids"][0]
     df = load_table_to_df()
     product_names = [
-        df.loc[df["product_id"] == product, ["product_name", "price_eur", "description"]]
+        df.loc[
+            df["product_id"] == product,
+            ["product_name", "price_eur", "description", "volume_ml", "en_description"],
+        ]
         for product in results
     ]
 
@@ -104,48 +112,24 @@ def embedding_description_get_recommendation():
 # df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
 # df_cleaned = clean_data(df)
 
-df= load_table_to_df()
 
-# Common instances
-model = SentenceTransformer("all-mpnet-base-v2")
-chroma_client = chromadb.PersistentClient(path="raw_data/")
+def create_description_db(df: pd.DataFrame) -> None:
+    """Create description ChromaDB collection from scratch"""
+    _ensure_dirs()
+    import shutil
 
-# Helper functions
-def embedding_description_get_data(df: pd.DataFrame):
-    dropped = df[['product_id', 'description']]
-    dropped = df.dropna(subset=['description'], axis=0)
-    return dropped
+    if CHROMA_DIR.exists():
+        shutil.rmtree(CHROMA_DIR)
+    CHROMA_DIR.mkdir(parents=True, exist_ok=True)
 
-def embedding_description_embed(dropped: pd.DataFrame):
-    embeddings = model.encode(dropped['description'].values, show_progress_bar=True)
-    return embeddings
-
-def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
-    collection = chroma_client.get_or_create_collection(name="description_embed")
-    collection.add(
-        ids=list(dropped['product_id'].values),
-        embeddings=embeddings)
-    return collection
-
-def embedding_description_query_chromadb(query, n_results=5):
-    df_cleaned = clean_data(df)
-    collection = chroma_client.get_collection(name="description_embed")
-    query_embedding = model.encode(query, show_progress_bar=False)
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=n_results)
-
-    results = results["ids"][0]
-    df['volume_ml'] = df['volume_ml'].astype('object').fillna('no data')
-    df['price_eur'] = df['price_eur'].astype('object').fillna('no data') #  added this
-
-    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "en_description", 'volume_ml', 'formula']] for product in results]
-
-    return product_names
-
-# Main functionality
-def embedding_description_get_recommendation():
-    df_cleaned = clean_data(df)
-    dropped_desc = embedding_description_get_data(df_cleaned)
+    dropped_desc = embedding_description_get_data(df)
     embeddings_desc = embedding_description_embed(dropped_desc)
-    collection_desc = embedding_description_populate_chromadb(dropped_desc, embeddings_desc)
+
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    embedding_description_populate_chromadb(
+        dropped_desc, embeddings_desc, client=client
+    )
+
+    # Save the files into the bucket
+    _archive_chroma(CHROMA_DIR, CHROMA_ARCHIVE)
+    upload_model(CHROMA_ARCHIVE, GCS_CHROMA_BLOB)
