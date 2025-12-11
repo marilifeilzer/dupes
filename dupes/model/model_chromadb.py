@@ -6,13 +6,14 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 import os
 import tarfile
+import shutil
 from pathlib import Path
 
 import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
-from dupes.data.gc_client import download_model
+from dupes.data.gc_client import download_model, upload_model
 from dupes.data.properties import encode_properties, use_encoder_load
 
 # Common instances
@@ -20,14 +21,15 @@ chroma_client = chromadb.PersistentClient(path="raw_data/")
 
 MODEL = SentenceTransformer("all-mpnet-base-v2")
 
-CACHE_ROOT = Path(os.getenv("MODELS_CACHE_DIR", "models_cache"))
-INGR_DIR = CACHE_ROOT / "ingredients"
-MLB_PATH = INGR_DIR / "mlb.pkl"
-CHROMA_DIR = INGR_DIR / "chroma"
-CHROMA_ARCHIVE = INGR_DIR / "chroma.tar.gz"
-
-GCS_MLB_BLOB = os.getenv("INGREDIENTS_MLB_BLOB", "ingredients/mlb.pkl")
-GCS_CHROMA_BLOB = os.getenv("INGREDIENTS_CHROMA_BLOB", "ingredients/chroma.tar.gz")
+# Import centralized paths
+from dupes.model.model_paths import (
+    MLB_INGREDIENTS_PATH as MLB_PATH,
+    CHROMA_INGREDIENTS_DIR as CHROMA_DIR,
+    CHROMA_INGREDIENTS_ARCHIVE as CHROMA_ARCHIVE,
+    INGREDIENTS_DIR as INGR_DIR,
+    GCS_MLB_BLOB,
+    GCS_CHROMA_INGREDIENTS_BLOB as GCS_CHROMA_BLOB
+)
 
 # Checks for directories and internal paths
 def _ensure_dirs() -> None:
@@ -253,7 +255,7 @@ def create_ingr_db(df: pd.DataFrame) -> None:
     metadata_dict = create_metadata_dictionairy(dropped)
 
     client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict, client)
+    embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
 
     # Save the files into the bucket
     _archive_chroma(CHROMA_DIR, CHROMA_ARCHIVE)

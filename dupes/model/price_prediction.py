@@ -9,42 +9,44 @@ import os
 import pickle
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from xgboost import XGBRegressor
-
-from dupes.data.gc_client import download_model, load_table_to_df, upload_model
-
-CACHE_ROOT = Path(os.getenv("MODELS_CACHE_DIR", "models_cache"))
-PRICE_DIR = CACHE_ROOT / "price"
-MODEL_PATH = PRICE_DIR / "xgb_best.pkl"
-GCS_PRICE_BLOB = os.getenv("PRICE_MODEL_BLOB", "price/xgb_best.pkl")
+from dupes.data.gc_client import upload_model
+from dupes.model.model_paths import (
+    get_price_model_path,
+    get_price_gcs_blob,
+    ensure_model_dirs
+)
 
 
-def _ensure_dirs() -> None:
-    PRICE_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def save_price_model(model) -> Path:
+def save_price_model(model, manufacturer=False) -> Path:
     """
     Persist the trained model locally and upload it to GCS.
     """
-    _ensure_dirs()
-    with open(MODEL_PATH, "wb") as f:
+    ensure_model_dirs()
+    model_path = get_price_model_path(manufacturer)
+    gcs_blob = get_price_gcs_blob(manufacturer)
+
+    with open(model_path, "wb") as f:
         pickle.dump(model, f)
-    upload_model(MODEL_PATH, GCS_PRICE_BLOB)
-    return MODEL_PATH
+    upload_model(model_path, gcs_blob)
+    return model_path
 
 
 def load_price_model(manufacturer=False):
-    if manufacturer:
-        path = "xgb_best_manu.pkl"
-    else:
-        path = "xgb_best.pkl"
-    with open(path, "rb") as f:
+    model_path = get_price_model_path(manufacturer)
+    with open(model_path, "rb") as f:
         return pickle.load(f)
+
+
+def ensure_price_model(manufacturer=False):
+    """Ensure the price model exists, downloading if necessary."""
+    from dupes.data.gc_client import download_model
+
+    model_path = get_price_model_path(manufacturer)
+    if not model_path.exists():
+        ensure_model_dirs()
+        gcs_blob = get_price_gcs_blob(manufacturer)
+        download_model(gcs_blob, model_path)
+    return model_path
 
 
 def preprocess_data(df: pd.DataFrame, manufacturer=False):

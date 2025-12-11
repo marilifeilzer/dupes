@@ -7,7 +7,8 @@ import pickle
 
 from dupes.model.price_prediction import preprocess_data
 from dupes.model.optimiser import load_model_base
-from dupes.data.gc_client import load_table_to_df
+from dupes.data.gc_client import load_table_to_df, upload_model
+from dupes.model.model_paths import get_price_meta_path, get_price_meta_gcs_blob, ensure_model_dirs
 
 def out_of_fold_prediction(df: pd.DataFrame, manufacturer=False):
 
@@ -86,13 +87,14 @@ def out_of_fold_prediction(df: pd.DataFrame, manufacturer=False):
     # Save meta model as pickle
     best_model = meta_model.fit(X_meta, target)
 
-    if manufacturer:
-        file_name = "xgb_meta_manu.pkl"
-    else:
-        file_name = "xgb_meta.pkl"
+    ensure_model_dirs()
+    model_path = get_price_meta_path(manufacturer)
+    gcs_blob = get_price_meta_gcs_blob(manufacturer)
 
     print('...writing to pickle file...')
-    pickle.dump(best_model, open(file_name, "wb"))
+    with open(model_path, "wb") as f:
+        pickle.dump(best_model, f)
+    upload_model(model_path, gcs_blob)
 
     # Evaluate meta model (best validation score: -0,0026)
     score = np.mean(cross_val_score(meta_model, X_test, y_test, cv=5, scoring="neg_mean_squared_error"))
@@ -100,14 +102,24 @@ def out_of_fold_prediction(df: pd.DataFrame, manufacturer=False):
     return score
 
 # Load pickle with fitted model
-def load_model_meta(manufacturer = False):
+def ensure_meta_model(manufacturer=False):
+    """Ensure the meta model exists, downloading if necessary."""
+    from dupes.data.gc_client import download_model
 
-    if manufacturer:
-        file_name = "xgb_meta_manu.pkl"
-    else:
-        file_name = "xgb_meta.pkl"
-    loaded_model = pickle.load(open(file_name, "rb"))
+    model_path = get_price_meta_path(manufacturer)
+    if not model_path.exists():
+        ensure_model_dirs()
+        gcs_blob = get_price_meta_gcs_blob(manufacturer)
+        download_model(gcs_blob, model_path)
+    return model_path
 
+
+def load_model_meta(manufacturer=False):
+    # Ensure model exists first
+    ensure_meta_model(manufacturer)
+    model_path = get_price_meta_path(manufacturer)
+    with open(model_path, "rb") as f:
+        loaded_model = pickle.load(f)
     return loaded_model
 
 

@@ -5,6 +5,8 @@ import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from unidecode import unidecode
 
+from dupes.model.model_paths import MLB_INGREDIENTS_PATH, ensure_model_dirs
+
 
 def parse_formula(x):
     if isinstance(x, str):
@@ -71,7 +73,8 @@ def encode_properties(dataframe, col):
     )
 
     # save
-    with open("model.pkl", "wb") as f:
+    ensure_model_dirs()
+    with open(MLB_INGREDIENTS_PATH, "wb") as f:
         pickle.dump(mlb, f)
 
     return pd.concat([dataframe[["product_id"]], mlb_df], axis=1)
@@ -79,9 +82,9 @@ def encode_properties(dataframe, col):
 
 def use_encoder_load(dataframe, col, encoder_path: str | Path | None = None):
 
-    encoder_path = Path(encoder_path) if encoder_path else Path("model.pkl")
+    encoder_path = Path(encoder_path) if encoder_path else MLB_INGREDIENTS_PATH
 
-    with open("model.pkl", "rb") as f:
+    with open(encoder_path, "rb") as f:
         mlb = pickle.load(f)
 
     # Parse formula strings into lists just like in encode_properties
