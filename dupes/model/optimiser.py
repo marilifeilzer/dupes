@@ -22,7 +22,7 @@ def objective(trial):
     target = preprocess['price_eur'] / preprocess['volume_ml']
     X = preprocess.drop(columns=['price_eur'])
 
-    # Define Optuna hyper parameters
+    # Define Optuna hyperparameters
     params = {
         'objective': 'reg:squarederror',
         'eval_metric': 'rmse',
@@ -49,7 +49,7 @@ def objective(trial):
     return score
 
 # Load pickle with fitted model
-def load_model(manufacturer = False):
+def load_model_base(manufacturer = False):
 
     if manufacturer:
         file_name = "xgb_best_manu.pkl"
@@ -71,13 +71,13 @@ if __name__ == '__main__':
 
     # Create and run the optimization process with 500 trials
     study = optuna.create_study(study_name="xgboost_study", direction='maximize')
-    study.optimize(objective, n_trials=500, show_progress_bar=True)
+    study.optimize(objective, n_trials=50, show_progress_bar=True)
 
     # Retrieve the best parameter values
     best_params = study.best_params
     print(f"\nBest parameters: {best_params}")
 
-    # Save best parameters as jso
+    # Save best parameters as json
     with open('best_params.json', 'w') as f:
         json.dump(best_params, f)
 
