@@ -6,13 +6,14 @@ from sentence_transformers import SentenceTransformer
 import chromadb
 import os
 import tarfile
+import shutil
 from pathlib import Path
 
 import chromadb
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 
-from dupes.data.gc_client import download_model
+from dupes.data.gc_client import download_model, upload_model
 from dupes.data.properties import encode_properties, use_encoder_load
 
 # Common instances
@@ -254,7 +255,7 @@ def create_ingr_db(df: pd.DataFrame) -> None:
     metadata_dict = create_metadata_dictionairy(dropped)
 
     client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict, client)
+    embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict)
 
     # Save the files into the bucket
     _archive_chroma(CHROMA_DIR, CHROMA_ARCHIVE)

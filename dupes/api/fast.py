@@ -10,7 +10,18 @@ from dupes.model.price_prediction import preprocess_prediction_input
 from dupes.model.model_chromadb import main_res_product_id
 from dupes.data.gc_client import load_table_to_df
 
+from dupes.model.price_prediction import ensure_price_model
+from dupes.model.model_chromadb import ensure_ingredients_artifacts
+from dupes.model.descriptions_chromadb import ensure_description_artifacts
+
 app = FastAPI()
+
+# Ensure all models are downloaded if missing
+ensure_price_model(manufacturer=True)
+ensure_ingredients_artifacts()
+ensure_description_artifacts()
+
+# Load models
 app.state.model_meta = load_model_meta(manufacturer=True)
 app.state.model_base = load_model_base(manufacturer=True)
 
@@ -54,7 +65,6 @@ def get_price_prediction(
 def get_recommendation(description: str):
 
     price_model = app.state.model_base
-
 
     recommendation = embedding_description_query_chromadb(description)
     if len(recommendation) > 0:
