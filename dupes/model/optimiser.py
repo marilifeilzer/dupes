@@ -63,7 +63,7 @@ def objective(trial):
 # Load pickle with fitted model
 def load_model_base(manufacturer=False):
 
-    return load_price_model(manufacturer=False)
+    return load_price_model(manufacturer)
 
 
 if __name__ == "__main__":
