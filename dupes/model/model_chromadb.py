@@ -16,11 +16,11 @@ def embedding_ingredients_get_data(df: pd.DataFrame):
     return dropped
 
 def embedding_ingredients(df: pd.DataFrame, exist=False):
-    df.formula = df.formula.apply(lambda x: eval(str(x))) #added str
+    # Don't use eval() - the encode_properties function now handles parsing
     if exist==True:
         encoded = use_encoder_load(df, col = 'formula')
     else:
-        encoded= encode_properties(df, col= 'formula')
+        encoded= encode_properties(df, col= ['formula'])
 
 
 
@@ -52,7 +52,6 @@ def create_metadata_dictionairy_properties(df: pd.DataFrame, cols=["tipo_de_cabe
 
 def create_metadata_dictionairy(df: pd.DataFrame, cols=["tipo_de_cabello", "color_de_cabello", "propiedad"]):
     # dropped= df.dropna(subset=cols, axis=0)
-    breakpoint()
     metadata_dict_encoded= []
     print(f"This is df imput of create_metadata_dict {df}")
 
@@ -138,51 +137,12 @@ def main_res_product_id(product_id, df):
     collection = chroma_client.get_collection(name="ingredients_embed_v2")
     product = df.loc[df['product_id'] == product_id]
     embed_ex= embedding_ingredients(product, True)
-    breakpoint()
     metadata_ex= create_metadata_dictionairy(product)
     results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
     return results
 
 
 if __name__ == "__main__":
-    df= load_table_to_df()
+    print("Building ChromaDB collection...")
     create_ingr_db()
-
-
-
-    # product_example = df.iloc[50]
-    # product_example= product_example.to_frame().T
-
-    example2 = pd.DataFrame({
-    "Unnamed: 0": [142],
-    "product_id": [8734521901],
-    "product_name": ["HydraGlow Nutritive Shampoo"],
-    "manufacturer_name": ["BellezaVital Labs"],
-    "price_eur": [12.99],
-    "volume_ml": [250],
-    "color_de_cabello": ["todos_los_colores_de_cabello"],
-    "tipo_de_cabello": ['Todo tipo de cabello'],
-    "propiedad": ['Detergente'],
-    "description": ["Un champú nutritivo diseñado para hidratar y suavizar el cabello seco y rizado."],
-    "ingredients_text": ["Aqua, Glycerin"],
-    "ingredients_raw": [[
-        "aqua",
-        "glycerin"
-    ]],
-    "formula": [['H2O', 'C10H14N2Na2O8', 'C19H38N2O3', 'PPG-5-Ceteth-20', 'C41H80O17', 'C7H5NaO2', 'C8H10O2', 'C6H8O7', 'C16H32O6', 'C10H18O', 'Na4EDTA', 'C9H6O2', 'C10H16', 'C10H20O', 'polyquaternium-7', 'C29H50O2']]
-})
-
-    results = main_results(example2)
-    print(results)
-
-
-    # embeddings= embedding_ingredients(df, False)
-    # metadata_dict= create_metadata_dictionairy(df)
-    # collection= embedding_ingredients_populate_chromadb(df, embeddings, metadata_dict)
-    # embed_ex= embedding_ingredients(example2, True)
-    # metadata_ex= create_metadata_dictionairy(example2)
-
-    # # res= query_chromadb_ingredients(collection, embeddings.iloc[50, 1:].astype(int).values, 5, where=metadata_dict[0])
-    # res= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
-    # print(res)
-    # breakpoint()
+    print("Done.")
