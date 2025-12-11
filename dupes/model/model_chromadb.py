@@ -143,11 +143,11 @@ def embedding_ingredients_get_data(df: pd.DataFrame):
     return dropped
 
 def embedding_ingredients(df: pd.DataFrame, exist=False):
-    df.formula = df.formula.apply(lambda x: eval(str(x))) #added str
+    # Don't use eval() - the encode_properties function now handles parsing
     if exist==True:
         encoded = use_encoder_load(df, col = 'formula')
     else:
-        encoded= encode_properties(df, col= 'formula')
+        encoded= encode_properties(df, col= ['formula'])
 
 
 
@@ -260,19 +260,16 @@ def create_ingr_db(df: pd.DataFrame) -> None:
     upload_model(MLB_PATH, GCS_MLB_BLOB)
     upload_model(CHROMA_ARCHIVE, GCS_CHROMA_BLOB)
 
-
-def main_results(product: pd.DataFrame):
-    collection = _get_client().get_collection(name="ingredients_embed_v2")
-    embed_ex = embedding_ingredients(product, True)
-    metadata_ex = create_metadata_dictionairy_properties(product)
-    results = query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
-    return results
-
-
 def main_res_product_id(product_id, df):
-    collection = _get_client().get_collection(name="ingredients_embed_v2")
-    product = df.loc[df["product_id"] == product_id]
-    embed_ex = embedding_ingredients(product, True)
-    metadata_ex = create_metadata_dictionairy(product)
-    results = query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
+    collection = chroma_client.get_collection(name="ingredients_embed_v2")
+    product = df.loc[df['product_id'] == product_id]
+    embed_ex= embedding_ingredients(product, True)
+    metadata_ex= create_metadata_dictionairy(product)
+    results= query_chromadb_ingredients(collection, embed_ex, 5, where=metadata_ex[0])
     return results
+
+
+if __name__ == "__main__":
+    print("Building ChromaDB collection...")
+    create_ingr_db()
+    print("Done.")
