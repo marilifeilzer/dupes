@@ -263,7 +263,10 @@ def create_ingr_db(df: pd.DataFrame) -> None:
     upload_model(CHROMA_ARCHIVE, GCS_CHROMA_BLOB)
 
 def main_res_product_id(product_id, df):
-    collection = chroma_client.get_collection(name="ingredients_embed_v2")
+    # Use the proper client that points to models_cache
+    ensure_ingredients_artifacts()  # Ensure ChromaDB is available
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
+    collection = client.get_collection(name="ingredients_embed_v2")
     product = df.loc[df['product_id'] == product_id]
     embed_ex= embedding_ingredients(product, True)
     metadata_ex= create_metadata_dictionairy(product)
