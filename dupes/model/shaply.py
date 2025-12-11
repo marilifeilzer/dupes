@@ -4,6 +4,7 @@ import pandas as pd
 from dupes.model.optimiser import load_model_base
 from dupes.model.price_prediction import preprocess_data, preprocess_prediction_input, train_model
 shap.initjs()
+from dupes.data.gc_client import load_table_to_df
 
 def get_local_shaply_values(df: pd.DataFrame, index: int, manufacturer = False):
 
@@ -58,6 +59,5 @@ def get_global_shaply_values(df: pd.DataFrame, manufacturer = True):
     shap.plots.bar(shap_values)
 
 if __name__ == '__main__':
-    file = '/Users/panamas/code/marili/dupes/raw_data/products_data_1012.csv'
-    df = pd.read_csv(file)
+    df= load_table_to_df()
     get_global_shaply_values(df, manufacturer=True)

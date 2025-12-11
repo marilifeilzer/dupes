@@ -15,7 +15,6 @@ from dupes.model.price_prediction import (
     save_price_model,
 )
 
-
 df= load_table_to_df()
 
 preprocess = preprocess_data(df)
@@ -96,7 +95,7 @@ if __name__ == '__main__':
 
     print('...writing to pickle file...')
     save_price_model(best_model)
-    
+
     if manufacturer:
         file_name = "xgb_best_manu.pkl"
     else:
