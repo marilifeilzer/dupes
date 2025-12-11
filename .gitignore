@@ -8,6 +8,7 @@ __pycache__/
 *.json
 *.so
 gcp/
+*.zip
 models_cache/
 # Distribution / packaging
 .Python

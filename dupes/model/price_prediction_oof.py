@@ -102,7 +102,21 @@ def out_of_fold_prediction(df: pd.DataFrame, manufacturer=False):
     return score
 
 # Load pickle with fitted model
+def ensure_meta_model(manufacturer=False):
+    """Ensure the meta model exists, downloading if necessary."""
+    from dupes.data.gc_client import download_model
+
+    model_path = get_price_meta_path(manufacturer)
+    if not model_path.exists():
+        ensure_model_dirs()
+        gcs_blob = get_price_meta_gcs_blob(manufacturer)
+        download_model(gcs_blob, model_path)
+    return model_path
+
+
 def load_model_meta(manufacturer=False):
+    # Ensure model exists first
+    ensure_meta_model(manufacturer)
     model_path = get_price_meta_path(manufacturer)
     with open(model_path, "rb") as f:
         loaded_model = pickle.load(f)

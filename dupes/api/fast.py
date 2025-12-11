@@ -110,7 +110,7 @@ def get_recommendation(description: str):
 
 
 @app.get("/dupe_with_price")
-def get_dupe_with_price(product_id: str = "3001044443"):
+def get_dupe_with_price(product_id: str = "5010328026"):
 
     price_model = app.state.model_base
 
