@@ -2,28 +2,20 @@ from fastapi import FastAPI
 import pandas as pd
 
 from dupes.logic import predict_shampoo
-from dupes.model.descriptions_chromadb import (
-    ensure_description_artifacts,
-    embedding_description_get_recommendation,
-    embedding_description_query_chromadb,
-)
-from dupes.model.model_chromadb import ensure_ingredients_artifacts, main_res_product_id, main_results
+from dupes.model.descriptions_chromadb import embedding_description_query_chromadb, embedding_description_get_recommendation
 from dupes.model.optimiser import load_model
 from dupes.model.price_prediction import preprocess_prediction_input
+from dupes.model.model_chromadb import main_results, main_res_product_id
 from dupes.data.gc_client import load_table_to_df
 
 app = FastAPI()
 app.state.model = load_model()
 
-ensure_ingredients_artifacts()
-ensure_description_artifacts()
-embedding_description_get_recommendation()
 df= load_table_to_df()
 
-
 @app.get("/predict_price")
-def get_price_prediction(volume_ml: int  = 350.0,
-                         ingredients_raw: str = "Water, Cetearyl Alcohol, PPG-3 Benzyl Ether Myristate, Caprylic/Capric Triglyceride, Cetyl Alcohol,Octyldodecyl Ricinoleate, Quaternium-91, Cetrimonium Chloride, Divinyldimethicone/Dimethicone Copolymer, Behentrimonium Chloride, Glycerin, Cetyl Esters, Isododecane, Bis-Aminopropyl Diglycol Dimaleate, Fragrance, Panthenol, Phospholipids, Dimethicone PEG-7 Isostearate, Pseudozyma Epicola/Argania Spinosa Kernel Oil Ferment Filtrate, Pseudozyma Epicola/Camellia Sinensis Seed Oil Ferment Extract Filtrate, Tocopheryl Linoleate/Oleate, Quaternium-95, Propanediol, Punica Granatum Extract, Morinda Citrifolia Fruit Extract, PEG-8, Euterpe Oleracea Fruit Extract, Camellia Sinensis Seed Oil, Crambe Abyssinica Seed Oil, Hydroxypropyl Cyclodextrin, Persea Gratissima (Avocado) Oil, Vitis Vinifera (Grape) Seed Oil, Disodium EDTA, Polysilicone-15, C11-15 Pareth-7, Hydroxypropyl Guar, Glycine Soja (Soybean) Oil, PEG-45M, PEG-7 Amodimethicone, Amodimethicone, C12-13 Pareth-23, C12-13 Pareth-3, Laureth-9, Pentaerythrityl Tetra-Di-T-Butyl Hydroxyhydrocinnamate, PEG-4, Phenoxyethanol, Hexyl Cinnamal"
+def get_price_prediction(volume_ml: int  = 236.0,
+                         formula: str = "['H2O', 'C14H27NaO5S', 'Cocamidopropyl hydroxysultaine', 'Cocoyl methyl taurate sodium salt', 'C16H32O6', 'C16H34O or C18H38O', 'C11H22O4', 'C10H20O2', 'C16H34O', 'C34H68O2', 'C', 'C5H11NO2', 'C17H33NO4Na', 'C9H9NNa4O8', 'C16H14N2O3', 'C8H7NaO3S', 'C21H42O6', 'C21H42O4', 'C38H74O4', 'C18H36O2', 'C21H45KO4P', 'C3H8O3', 'C58H118O21', 'C18H37COO(PEG)75', 'C16H34O2', 'C18H37(OCH2CH2)20OH', 'C10-30 Alkyl Acrylate Crosspolymer', 'NaOH', 'C3H8O2', 'C11H24O3', 'C8H8O2', 'C10H18O', 'C15H20O2', 'C10H20O', 'C10H16']"
                          ):
 
     # Create dataframe with the input variables for the prediction
@@ -51,7 +43,57 @@ def get_recommendation(description: str):
 
     recommendation = embedding_description_query_chromadb(description)
 
+
     return recommendation
+
+
+@app.get("/recommend_with_price")
+def get_recommendation(description: str):
+    price_model = app.state.model
+
+
+    recommendation = embedding_description_query_chromadb(description)
+    if len(recommendation) > 0:
+        df_concat = pd.concat(recommendation)
+        product_names = df_concat.product_name.values
+        predict_price_df = df.loc[df.product_name.isin(product_names)][["volume_ml", "formula"]]
+        predict_price_df["volume_ml"] =  predict_price_df["volume_ml"].astype(float)
+
+        preproc = preprocess_prediction_input(predict_price_df)
+        pred_price_ml = price_model.predict(preproc).tolist()
+        df_concat["ml_prediction"] = pred_price_ml
+        df_concat["price_prediction"] = df_concat["ml_prediction"] * df_concat["volume_ml"]
+        return {"prediction": df_concat.to_dict(orient="records")}
+
+
+    return recommendation
+
+@app.get("/dupe_with_price")
+def get_dupe_with_price(product_id: str):
+    
+    price_model = app.state.model
+
+    df= load_table_to_df()
+
+    dropped =  df.dropna(subset=["formula"], axis=0)
+    results= main_res_product_id(product_id, dropped)
+
+    product_ids= results['ids'][0][1:]
+
+    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "description", "formula", "volume_ml"]] for product in product_ids]
+
+
+    predict_price_df = df.loc[df.product_name.isin(product_names)][["volume_ml", "formula"]]
+    predict_price_df["volume_ml"] =  predict_price_df["volume_ml"].astype(float)
+
+    preproc = preprocess_prediction_input(predict_price_df)
+    pred_price_ml = price_model.predict(preproc).tolist()
+    predict_price_df["ml_prediction"] = pred_price_ml
+    predict_price_df["price_prediction"] = predict_price_df["ml_prediction"] * predict_price_df["volume_ml"]
+    return {"prediction": predict_price_df.to_dict(orient="records")}
+
+
+
 
 @app.get("/recommend_ingredients")
 def get_recommendation_ingredients(
@@ -61,6 +103,8 @@ def get_recommendation_ingredients(
     tipo_de_cabello: str = "Todo tipo de cabello",
     propiedad: str = "Detergente" ,
 ):
+    df_cleaned= pd.read_csv('/Users/panamas/code/marili/dupes/raw_data/products_clean_600_ingredients.csv')
+    dropped =  df_cleaned.dropna(subset=["formula"], axis=0)
 
     product = pd.DataFrame({
         # "product_id": [product_id],
@@ -80,6 +124,8 @@ def get_recommendation_ingredients(
     results = main_results(product)
     product_ids= results['ids'][0]
 
+
+
     product_names = [df.
                      loc[df["product_id"]==product, ["product_name","price_eur", "description"]]for product in product_ids]
 
@@ -92,14 +138,18 @@ def get_recommendation_ingredients(
 ):
     df= load_table_to_df()
 
+
     dropped =  df.dropna(subset=["formula"], axis=0)
     results= main_res_product_id(product_id, dropped)
 
-    product_ids= results['ids'][0]
+    product_ids= results['ids'][0][1:]
 
-    df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-    return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
+    #df = df.loc[dropped["product_id"].isin(product_ids), ["product_name","price_eur", "description"]]
 
-if __name__ == "__main__":
-    pass
+
+    #return {"prodcut_names":dropped.fillna("No data").to_dict(orient="records")}
+
+    results_df = df.loc[df["product_id"].isin(product_ids), ["product_name","price_eur", "en_description"]].to_dict(orient="records")
+
+    return results_df

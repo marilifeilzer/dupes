@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_navigation_bar import st_navbar
+#from streamlit_navigation_bar import st_navbar
 from streamlit_card import card
 import requests
 
@@ -20,22 +20,22 @@ if nlp_text:
 
     # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api = "http://127.0.0.1:8000/recomend"
-    response = requests.get(dupes_web_api,params=params)
-
-    predictions = response.json()
+    dupes_web_api_price = "http://127.0.0.1:8000//recommend_with_price"
+    response_price = requests.get(dupes_web_api_price, params=params)
+    predict_prices = response_price.json()
 
     st.markdown("""
-                ## No ads. No sponsored brands. Just unbiased recommendations.
+                ### No ads. No sponsored brands. Just unbiased recommendations.
                 """)
 
-    for prediction in predictions:
+    for prediction in predict_prices['prediction']:
 
-        with st.container(border= True):
-            st.title(f"# {list(prediction["product_name"].values())[0]}")
-            st.caption(f"{list(prediction["description"].values())[0]}")
-            st.caption(f"Actual price in stores: €{list(prediction["price_eur"].values())[0]}")
-            st.caption(f"The price we think its fair: €")
+
+            with st.container(border= True):
+                st.title(f"{prediction['product_name']}")
+                # st.caption(f"{list(predict_prices["prediction"][0]['product_name']}")
+                st.caption(f"Actual price in stores: €{prediction['price_eur']} for {prediction['volume_ml']} ml.")
+                st.caption(f"The price we think its fair: € {round(prediction['price_prediction'],2)} for {prediction['volume_ml']} ml.")
 
 
 

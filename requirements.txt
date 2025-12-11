@@ -19,4 +19,6 @@ xgboost
 matplotlib
 optuna
 google-cloud-bigquery
+db-dtypes
 google-cloud-storage
+shap

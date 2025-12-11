@@ -1,10 +1,10 @@
+import pandas as pd
+from sentence_transformers import SentenceTransformer
+from dupes.data.clean_data import clean_data
 import os
 import tarfile
 from pathlib import Path
-
 import chromadb
-import pandas as pd
-from sentence_transformers import SentenceTransformer
 
 from dupes.data.gc_client import download_model, load_table_to_df, upload_model
 
@@ -95,3 +95,57 @@ def embedding_description_get_recommendation():
     _archive_chroma(CHROMA_DIR, CHROMA_ARCHIVE)
     upload_model(CHROMA_ARCHIVE, GCS_CHROMA_BLOB)
 
+
+# Load raw data
+# This needs to be linked to the path of your csv
+
+
+# # TODO REPLACE WITH THE BIGQUERY
+# df = pd.read_csv('raw_data/products_clean_600_ingredients.csv')
+# df_cleaned = clean_data(df)
+
+df= load_table_to_df()
+
+# Common instances
+model = SentenceTransformer("all-mpnet-base-v2")
+chroma_client = chromadb.PersistentClient(path="raw_data/")
+
+# Helper functions
+def embedding_description_get_data(df: pd.DataFrame):
+    dropped = df[['product_id', 'description']]
+    dropped = df.dropna(subset=['description'], axis=0)
+    return dropped
+
+def embedding_description_embed(dropped: pd.DataFrame):
+    embeddings = model.encode(dropped['description'].values, show_progress_bar=True)
+    return embeddings
+
+def embedding_description_populate_chromadb(dropped: pd.DataFrame, embeddings):
+    collection = chroma_client.get_or_create_collection(name="description_embed")
+    collection.add(
+        ids=list(dropped['product_id'].values),
+        embeddings=embeddings)
+    return collection
+
+def embedding_description_query_chromadb(query, n_results=5):
+    df_cleaned = clean_data(df)
+    collection = chroma_client.get_collection(name="description_embed")
+    query_embedding = model.encode(query, show_progress_bar=False)
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=n_results)
+
+    results = results["ids"][0]
+    df['volume_ml'] = df['volume_ml'].astype('object').fillna('no data')
+    df['price_eur'] = df['price_eur'].astype('object').fillna('no data') #  added this
+
+    product_names = [df.loc[df["product_id"]==product, ["product_name","price_eur", "en_description", 'volume_ml', 'formula']] for product in results]
+
+    return product_names
+
+# Main functionality
+def embedding_description_get_recommendation():
+    df_cleaned = clean_data(df)
+    dropped_desc = embedding_description_get_data(df_cleaned)
+    embeddings_desc = embedding_description_embed(dropped_desc)
+    collection_desc = embedding_description_populate_chromadb(dropped_desc, embeddings_desc)
