@@ -78,8 +78,8 @@ def embedding_ingredients_get_data(df: pd.DataFrame) -> pd.DataFrame:
 def embedding_ingredients(df: pd.DataFrame, exist: bool = False):
     df.formula = df.formula.apply(lambda x: eval(str(x)))
     if exist:
-        return use_encoder_load(df, col="formula", encoder_path=MLB_PATH)
-    return encode_properties(df, col="formula", encoder_path=MLB_PATH)
+        return use_encoder_load(df, col="formula")
+    return encode_properties(df, col="formula")
 
 
 def create_metadata_dictionairy_properties(
@@ -170,7 +170,10 @@ def create_ingr_db(df: pd.DataFrame) -> None:
 
     dropped = embedding_ingredients_get_data(df)
     embed_ingredients = embedding_ingredients(dropped)
-    metadata_dict = create_metadata_dictionairy(dropped)
+
+    # Get full data for metadata (not just the dropped version with only product_id and formula)
+    full_data_for_metadata = df[df['product_id'].isin(dropped['product_id'])].copy()
+    metadata_dict = create_metadata_dictionairy(full_data_for_metadata)
 
     client = chromadb.PersistentClient(path=str(CHROMA_DIR))
     embedding_ingredients_populate_chromadb(dropped, embed_ingredients, metadata_dict, client=client)
