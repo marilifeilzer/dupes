@@ -66,7 +66,7 @@ if shampoo_input:
                 except:
                     pass
                 st.title(f"{prediction["product_name"]}")
-                #st.caption(f"{prediction['en_description']}")
+                st.caption(f"## {prediction['en_description']}")
                 st.caption(f"### Price of {shampoo_input} is €**{shampoo_price}** for {shampoo_volume} ml.")
                 st.caption(f"### The retail price of your dupe: €**{prediction["price_eur"]}** for {prediction["volume_ml"]} ml.")
                 st.caption(f"### The price we think is fair: €**{round(prediction["price_prediction"],2)}** for {prediction["volume_ml"]} ml.")
@@ -79,8 +79,7 @@ if shampoo_input:
                 except:
                     pass
                 st.title(f"{prediction["product_name"]}")
-                st.text(en_description)
-                #st.caption(f"{prediction['en_description']}")
+                st.caption(f"## {prediction['en_description']}")
                 st.caption(f"### The retail price of {prediction["product_name"]}: €**{prediction["price_eur"]}** for {prediction["volume_ml"]} ml.")
                 st.caption(f"### The price we think is fair: €**{round(prediction["price_prediction"],2)}** for {prediction["volume_ml"]} ml.")
                 st.caption(f"## Not a DUPE")
