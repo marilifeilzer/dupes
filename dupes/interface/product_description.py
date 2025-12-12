@@ -20,7 +20,7 @@ if nlp_text:
 
     # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api_price = "https://dupes-img-pub-622586200055.europe-west1.run.app/recommend_with_price"
+    dupes_web_api_price = "http://127.0.0.1:8000//recommend_with_price"
 
     response_price = requests.get(dupes_web_api_price, params=params)
     predict_prices = response_price.json()
@@ -38,8 +38,9 @@ if nlp_text:
                 st.title(f"{prediction['product_name']}")
                 st.caption(f"{prediction['en_description']}")
                 st.caption(f"This shampoo sells for: €{prediction['price_eur']} for {prediction['volume_ml']} ml,")
-                st.caption(f"But it's fair value is around: € {round(prediction['price_prediction'],2)} for {prediction['volume_ml']} ml.")
+                st.caption(f"But its fair value is around: € {round(prediction['price_prediction'],2)} for {prediction['volume_ml']} ml.")
                 st.text(f"Thats €{round(prediction['price_prediction'] - prediction['price_eur'],2)} in savings")
+                st.text(f"Dupe")
 
         else:
 
@@ -50,7 +51,7 @@ if nlp_text:
                 st.caption(f"{prediction['en_description']}")
                 st.caption(f"The product is priced at: €{prediction['price_eur']} for {prediction['volume_ml']} ml in stores")
                 st.caption(f"Based on our analysis, a fair price would be € {round(prediction['price_prediction'],2)} for {prediction['volume_ml']} ml.")
-
+                st.text(f"Not dupe")
 
 
 
