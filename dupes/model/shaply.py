@@ -4,13 +4,15 @@ import pandas as pd
 from dupes.model.optimiser import load_model_base
 from dupes.model.price_prediction import preprocess_data, preprocess_prediction_input, train_model
 shap.initjs()
+from dupes.data.gc_client import load_table_to_df
 
-def get_local_shaply_values(df: pd.DataFrame, index: int, manufacturer = False):
+def get_local_shaply_values(df: pd.DataFrame, index: int, manufacturer = True):
 
     # Preprocess data and load model
     preprocess = preprocess_data(df, manufacturer)
     target = df['price_eur'] / df['volume_ml']
     X = preprocess.drop(columns=['price_eur'])
+    mean_volume = np.mean(X['volume_ml'])
 
     model = load_model_base(manufacturer=manufacturer)
 
@@ -25,11 +27,11 @@ def get_local_shaply_values(df: pd.DataFrame, index: int, manufacturer = False):
     explainer = shap.Explainer(model)
     shap_values_loc = explainer(feature_values)
 
-    base_values = shap_values_loc.base_values * volume
+    base_values = shap_values_loc.base_values[0] * volume
 
     sum_shap_values = float(shap_values_loc.values.sum()) * volume
     shap_values_loc.values = np.array([shap_values_loc.values[0]]) * volume.values[0]
-
+    # shap_values_loc.base_values = np.array([shap_values_loc.base_values[0]]) * mean_volume
 
     print(f"Base value: {base_values}")
     print(f"Sum of SHAP values: {sum_shap_values}")
@@ -58,6 +60,5 @@ def get_global_shaply_values(df: pd.DataFrame, manufacturer = True):
     shap.plots.bar(shap_values)
 
 if __name__ == '__main__':
-    file = '/Users/panamas/code/marili/dupes/raw_data/products_data_1012.csv'
-    df = pd.read_csv(file)
-    get_global_shaply_values(df, manufacturer=True)
+    df= load_table_to_df()
+    get_local_shaply_values(df, 11, manufacturer=True)

@@ -11,7 +11,6 @@ from dupes.model.price_prediction import (
     save_price_model,
 )
 
-
 df = load_table_to_df()
 
 preprocess = preprocess_data(df)
@@ -19,7 +18,7 @@ target = preprocess["price_eur"] / preprocess["volume_ml"]
 X = preprocess.drop(columns=["price_eur"])
 
 
-# Optimise the model with hyper parameter tuning
+# Optimise the model with hyperparameter tuning
 def objective(trial):
 
     preprocess = preprocess_data(df)
