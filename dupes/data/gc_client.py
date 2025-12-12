@@ -11,40 +11,43 @@ REQUIRED_BQ_ENV_VARS = [
     "GCP_PROJECT",
     "BQ_DATASET",
     "BQ_TABLE",
-    "GOOGLE_APPLICATION_CREDENTIALS",
 ]
 
 
-def _ensure_bq_env() -> tuple[str, str, str, str]:
+def _ensure_bq_env() -> tuple[str, str, str]:
     """
     Validate required env vars and key file presence for BigQuery.
     Returns (project_id, dataset, table, credentials_path).
     """
     missing = [var for var in REQUIRED_BQ_ENV_VARS if not os.getenv(var)]
     if missing:
-        raise ValueError(f"Missing required env vars for BigQuery: {', '.join(missing)}")
+        raise ValueError(
+            f"Missing required env vars for BigQuery: {', '.join(missing)}"
+        )
 
     project_id = os.getenv("GCP_PROJECT")
     dataset = os.getenv("BQ_DATASET")
     table = os.getenv("BQ_TABLE")
-    credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-    if not Path(credentials_path).is_file():
-        raise ValueError(f"GOOGLE_APPLICATION_CREDENTIALS path does not exist: {credentials_path}")
-
-    return project_id, dataset, table, credentials_path
+    return project_id, dataset, table
 
 
 def get_bq_client() -> bigquery.Client:
-    project_id, _, _, _ = _ensure_bq_env()
+    (
+        project_id,
+        _,
+        _,
+    ) = _ensure_bq_env()
     return bigquery.Client(project=project_id)
 
 
-def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd.DataFrame:
+def load_table_to_df(
+    dataset: str | None = None, table: str | None = None
+) -> pd.DataFrame:
     """
     Load the BigQuery table into a DataFrame.
     """
-    project_id, env_dataset, env_table, _ = _ensure_bq_env()
+    project_id, env_dataset, env_table = _ensure_bq_env()
 
     dataset = dataset or env_dataset
     table = table or env_table
@@ -56,7 +59,6 @@ def load_table_to_df(dataset: str | None = None, table: str | None = None) -> pd
     df = job.result().to_dataframe()
 
     return df
-
 
 
 REQUIRED_GCS_ENV_VARS = [
@@ -120,6 +122,7 @@ def download_model(blob_name: str, dest_path: str | Path) -> Path:
 
     blob.download_to_filename(dest_path)
     return dest_path
+
 
 if __name__ == "__main__":
     load_table_to_df()

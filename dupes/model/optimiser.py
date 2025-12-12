@@ -1,11 +1,7 @@
 import json
-import pickle
-
 import numpy as np
 import optuna
-import pandas as pd
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import cross_val_score
 from xgboost import XGBRegressor
 
 from dupes.data.gc_client import load_table_to_df

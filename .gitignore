@@ -10,6 +10,7 @@ __pycache__/
 gcp/
 *.zip
 models_cache/
+*.env*
 # Distribution / packaging
 .Python
 build/

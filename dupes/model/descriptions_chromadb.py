@@ -84,7 +84,7 @@ def embedding_description_query_chromadb(query, n_results=5):
     product_names = [
         df.loc[
             df["product_id"] == product,
-            ["product_name", "price_eur", "description", "volume_ml", "en_description"],
+            ["product_name", "price_eur", "description", "volume_ml", "en_description","product_id"],
         ]
         for product in results
     ]

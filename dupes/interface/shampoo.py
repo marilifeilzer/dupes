@@ -32,6 +32,8 @@ if shampoo_input:
     for prediction in predictions['predictions']:
 
         with st.container(border= True):
+            st.image(f"img/images/{prediction["product_id"]}.jpg")
             st.title(f"{prediction["product_name"]}")
+            #st.caption(f"{prediction['en_description']}")
             st.caption(f"Actual price in stores: €{prediction["price_eur"]}")
             st.caption(f"The price we think is fair: €{round(prediction["price_prediction"],2)} per {prediction["volume_ml"]} ml.")
