@@ -55,16 +55,16 @@ if shampoo_input:
         except:
             en_description = ""
 
-        try:
-            st.image(f"img/images/{prediction["product_id"]}.jpg")
-        except:
-            pass
+
 
 
         if prediction["price_eur"]/prediction["volume_ml"]< shampoo_price/shampoo_volume:
 
             with st.container(border= True):
-                st.image(f"img/images/{prediction["product_id"]}.jpg")
+                try:
+                    st.image(f"img/images/{prediction["product_id"]}.jpg")
+                except:
+                    pass
                 st.title(f"{prediction["product_name"]}")
                 st.text(en_description)
                 st.caption(f"### Price of {shampoo_input} is €**{shampoo_price}** per {shampoo_volume} ml")
@@ -74,7 +74,10 @@ if shampoo_input:
                 st.caption(f"## This is a DUPE")
         else:
             with st.container(border= True):
-                st.image(f"img/images/{prediction["product_id"]}.jpg")
+                try:
+                    st.image(f"img/images/{prediction["product_id"]}.jpg")
+                except:
+                    pass
                 st.title(f"{prediction["product_name"]}")
                 st.text(en_description)
                 #st.caption(f"{prediction['en_description']}")
