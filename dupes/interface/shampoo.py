@@ -1,7 +1,25 @@
 import streamlit as st
 import pandas as pd
 import requests
-from dupes.data.gc_client import load_table_to_df
+from google.oauth2 import service_account
+from google.cloud import bigquery
+
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
+client = bigquery.Client(credentials=credentials)
+
+def load_table_to_df(
+    dataset: str | None = None, table: str | None = None
+) -> pd.DataFrame:
+
+    table_id = "wagon-bootcamp-475013.dupes.Data_1012_bq"
+
+    query = f"SELECT * FROM `{table_id}`"
+    job = client.query(query)
+    df = job.result().to_dataframe()
+
+    return df
 
 df = load_table_to_df()
 
