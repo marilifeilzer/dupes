@@ -50,13 +50,18 @@ if shampoo_input:
 
 
     for prediction in predictions['predictions']:
+        try:
+            en_description = df.loc[df.product_id == prediction["product_id"]]["en_description"].values[0]
+        except:
+            en_description = ""
+
 
         if prediction["price_eur"]/prediction["volume_ml"]< shampoo_price/shampoo_volume:
 
             with st.container(border= True):
                 st.image(f"img/images/{prediction["product_id"]}.jpg")
                 st.title(f"{prediction["product_name"]}")
-                st.caption(f"{prediction['en_description']}")
+                st.text(en_description)
                 st.caption(f"### Price of {shampoo_input} is €**{shampoo_price}** per {shampoo_volume} ml")
                 st.caption(f"### The retail price of your dupe: €**{prediction["price_eur"]}** per {prediction["volume_ml"]} ml")
                 st.caption(f"### The price we think is fair: €**{round(prediction["price_prediction"],2)}** per {prediction["volume_ml"]} ml.")
@@ -66,6 +71,7 @@ if shampoo_input:
             with st.container(border= True):
                 st.image(f"img/images/{prediction["product_id"]}.jpg")
                 st.title(f"{prediction["product_name"]}")
+                st.text(en_description)
                 #st.caption(f"{prediction['en_description']}")
                 st.caption(f"### The retail price of {prediction["product_name"]}: €**{prediction["price_eur"]}** per {prediction["volume_ml"]} ml")
                 st.caption(f"### The price we think is fair: €**{round(prediction["price_prediction"],2)}** per {prediction["volume_ml"]} ml.")

@@ -128,7 +128,8 @@ def get_dupe_with_price(product_id: str = "5010328026"):
             "volume_ml",
             "formula",
             "price_eur",
-            "manufacturer_name",
+            "manufacturer_name"
+
         ]
     ].copy()
 
