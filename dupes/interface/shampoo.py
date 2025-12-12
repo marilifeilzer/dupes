@@ -56,7 +56,7 @@ if shampoo_input:
             with st.container(border= True):
                 st.image(f"img/images/{prediction["product_id"]}.jpg")
                 st.title(f"{prediction["product_name"]}")
-                #st.caption(f"{prediction['en_description']}")
+                st.caption(f"{prediction['en_description']}")
                 st.caption(f"### Price of {shampoo_input} is €**{shampoo_price}** per {shampoo_volume} ml")
                 st.caption(f"### The retail price of your dupe: €**{prediction["price_eur"]}** per {prediction["volume_ml"]} ml")
                 st.caption(f"### The price we think is fair: €**{round(prediction["price_prediction"],2)}** per {prediction["volume_ml"]} ml.")
