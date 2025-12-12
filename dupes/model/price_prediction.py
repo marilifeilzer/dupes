@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # Run previous methods
     df = load_table_to_df()
     preprocess = preprocess_data(df)
-    model = train_model(preprocess)
+    model = train_model(preprocess, manufacturer=True)
     save_price_model(model)
 
     # Retrieve performance metrics
