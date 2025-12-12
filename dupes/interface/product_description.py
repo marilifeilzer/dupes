@@ -1,5 +1,6 @@
 import streamlit as st
-#from streamlit_navigation_bar import st_navbar
+
+# from streamlit_navigation_bar import st_navbar
 from streamlit_card import card
 import requests
 
@@ -7,12 +8,18 @@ import streamlit as st
 
 with st.container():
 
-    st.title('PRODUCT DESCRIPTION')
-    st.caption("""## Let us know what you're looking for in your new shampoo and we will find affordable options.""", width="stretch", text_alignment="left")
+    st.title("PRODUCT DESCRIPTION")
+    st.caption(
+        """## Let us know what you're looking for in your new shampoo and we will find affordable options.""",
+        width="stretch",
+        text_alignment="left",
+    )
 
-    nlp_text = st.text_input('### Type in the cell below your description.', placeholder="frizz control, hydration, volume, repair?", label_visibility='collapsed')
-
-
+    nlp_text = st.text_input(
+        "### Type in the cell below your description.",
+        placeholder="frizz control, hydration, volume, repair?",
+        label_visibility="collapsed",
+    )
 
 
 if nlp_text:
@@ -20,46 +27,54 @@ if nlp_text:
 
     # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api_price = "https://dupes-img-pub-622586200055.europe-west1.run.app/recommend_with_price"
+    dupes_web_api_price = (
+        "https://dupes-img-pub-622586200055.europe-west1.run.app/recommend_with_price"
+    )
 
     response_price = requests.get(dupes_web_api_price, params=params)
     predict_prices = response_price.json()
 
-    st.markdown("""
+    st.markdown(
+        """
                 ### No ads. No sponsored brands. Just unbiased recommendations.
-                """)
+                """
+    )
 
-    for prediction in predict_prices['prediction']:
+    for prediction in predict_prices["prediction"]:
 
-        if prediction['price_prediction'] >= prediction['price_eur']:
+        if prediction["price_prediction"] >= prediction["price_eur"]:
 
-            with st.container(border= True):
+            with st.container(border=True):
                 try:
-                    st.image(f"img/images/{prediction["product_id"]}.jpg")
+                    st.image(f"img/images/{prediction['product_id']}.jpg")
                 except:
                     pass
                 st.title(f"{prediction['product_name']}")
                 st.caption(f"## {prediction['en_description']}")
-                st.caption(f"## This shampoo sells for €**{prediction['price_eur']}** for {prediction['volume_ml']} ml.")
-                st.caption(f"## Based on our analysis, a fair price would be €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml.")
+                st.caption(
+                    f"## This shampoo sells for €**{prediction['price_eur']}** for {prediction['volume_ml']} ml."
+                )
+                st.caption(
+                    f"## Based on our analysis, a fair price would be €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml."
+                )
                 st.caption(f"# This is an **undervalued** product.")
 
         else:
 
-            with st.container(border= True):
+            with st.container(border=True):
                 try:
-                    st.image(f"img/images/{prediction["product_id"]}.jpg")
+                    st.image(f"img/images/{prediction['product_id']}.jpg")
                 except:
                     pass
                 st.title(f"{prediction['product_name']}")
                 st.caption(f"## {prediction['en_description']}")
-                st.caption(f"## This shampoo sells for €**{prediction['price_eur']}** for {prediction['volume_ml']} ml.")
-                st.caption(f"## Based on our analysis, a fair price would be €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml.")
+                st.caption(
+                    f"## This shampoo sells for €**{prediction['price_eur']}** for {prediction['volume_ml']} ml."
+                )
+                st.caption(
+                    f"## Based on our analysis, a fair price would be €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml."
+                )
                 st.caption(f"# This is a **overvalued** product.")
-
-
-
-
 
     #     card(
     #         title=f"{list(prediction["product_name"].values())[0]}",
