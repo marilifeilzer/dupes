@@ -55,6 +55,11 @@ if shampoo_input:
         except:
             en_description = ""
 
+        try:
+            st.image(f"img/images/{prediction["product_id"]}.jpg")
+        except:
+            pass
+
 
         if prediction["price_eur"]/prediction["volume_ml"]< shampoo_price/shampoo_volume:
 
