@@ -8,7 +8,6 @@ import chromadb
 
 from dupes.data.gc_client import download_model, load_table_to_df, upload_model
 
-model = SentenceTransformer("all-mpnet-base-v2")
 
 CACHE_ROOT = Path(os.getenv("MODELS_CACHE_DIR", "models_cache"))
 DESC_DIR = CACHE_ROOT / "descriptions"
@@ -61,6 +60,8 @@ def embedding_description_get_data(df: pd.DataFrame):
 
 
 def embedding_description_embed(dropped: pd.DataFrame):
+    model = SentenceTransformer("all-mpnet-base-v2")
+
     embeddings = model.encode(dropped["description"].values, show_progress_bar=True)
     return embeddings
 
@@ -75,6 +76,8 @@ def embedding_description_populate_chromadb(
 
 
 def embedding_description_query_chromadb(query, n_results=5):
+    model = SentenceTransformer("all-mpnet-base-v2")
+
     collection = _get_client().get_collection(name="description_embed")
     query_embedding = model.encode(query, show_progress_bar=False)
     results = collection.query(query_embeddings=[query_embedding], n_results=n_results)

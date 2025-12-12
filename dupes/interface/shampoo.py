@@ -21,9 +21,9 @@ if shampoo_input:
 
     params = dict(product_id=shampoo_id)
 
-    # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api = "http://127.0.0.1:8000/dupe_with_price"
+
+    dupes_web_api = "https://dupes-img-pub-622586200055.europe-west1.run.app/dupe_with_price"
     response = requests.get(dupes_web_api,params=params)
 
     predictions = response.json()

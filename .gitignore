@@ -227,3 +227,5 @@ __marimo__/
 
 
 gcp/
+**/.secrets.toml
+dupes/interface/.streamlit/secrets.toml

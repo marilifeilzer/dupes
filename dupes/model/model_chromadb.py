@@ -19,7 +19,7 @@ from dupes.data.properties import encode_properties, use_encoder_load
 # Common instances
 chroma_client = chromadb.PersistentClient(path="raw_data/")
 
-MODEL = SentenceTransformer("all-mpnet-base-v2")
+
 
 # Import centralized paths
 from dupes.model.model_paths import (
@@ -134,6 +134,7 @@ def embedding_ingredients_populate_chromadb(
 
 
 def embedding_description_query_filtering_chromadb(collection, query, n_results, where=None):
+    MODEL = SentenceTransformer("all-mpnet-base-v2")
     query_embedding = MODEL.encode(query)
 
     results = collection.query(
