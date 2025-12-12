@@ -75,8 +75,10 @@ def embedding_description_populate_chromadb(
     return collection
 
 
+model = SentenceTransformer("all-mpnet-base-v2")
+
+
 def embedding_description_query_chromadb(query, n_results=5):
-    model = SentenceTransformer("all-mpnet-base-v2")
 
     collection = _get_client().get_collection(name="description_embed")
     query_embedding = model.encode(query, show_progress_bar=False)
@@ -87,7 +89,14 @@ def embedding_description_query_chromadb(query, n_results=5):
     product_names = [
         df.loc[
             df["product_id"] == product,
-            ["product_name", "price_eur", "description", "volume_ml", "en_description","product_id"],
+            [
+                "product_name",
+                "price_eur",
+                "description",
+                "volume_ml",
+                "en_description",
+                "product_id",
+            ],
         ]
         for product in results
     ]
