@@ -20,7 +20,7 @@ if nlp_text:
 
     # TODO: Change the api URL to google after the test in local
 
-    dupes_web_api_price = "http://127.0.0.1:8000//recommend_with_price"
+    dupes_web_api_price = "https://dupes-img-pub-622586200055.europe-west1.run.app/recommend_with_price"
 
     response_price = requests.get(dupes_web_api_price, params=params)
     predict_prices = response_price.json()
