@@ -36,8 +36,8 @@ if nlp_text:
             with st.container(border= True):
                 st.image(f"img/images/{prediction["product_id"]}.jpg")
                 st.title(f"{prediction['product_name']}")
-                st.caption(f"{prediction['en_description']}")
-                st.caption(f"## This shampoo sells for: €**{prediction['price_eur']}** for {prediction['volume_ml']} ml,")
+                st.caption(f"##{prediction['en_description']}")
+                st.caption(f"## This shampoo sells for: €**{prediction['price_eur']}** for {prediction['volume_ml']} ml.")
                 st.caption(f"## But its fair value is around: €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml.")
                 st.caption(f"# This is an **undervalued** product.")
 
@@ -47,7 +47,7 @@ if nlp_text:
                 st.image(f"img/images/{prediction["product_id"]}.jpg")
                 st.title(f"{prediction['product_name']}")
                 st.caption(f"## {prediction['en_description']}")
-                st.caption(f"## The product is priced at: €**{prediction['price_eur']}** for {prediction['volume_ml']} ml in stores")
+                st.caption(f"## The product is priced at: €**{prediction['price_eur']}** for {prediction['volume_ml']} ml in stores.")
                 st.caption(f"## Based on our analysis, a fair price would be €**{round(prediction['price_prediction'],2)}** for {prediction['volume_ml']} ml.")
                 st.caption(f"# This is a **overvalued** product.")
 
